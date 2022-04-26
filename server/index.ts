@@ -8,12 +8,6 @@
  const debug = require('debug')('filestorageutil:server');
  import http from 'http';
  
- /**
-  * Get port from environment and store in Express.
-  */
- 
- const port = normalizePort(process.env.PORT || 3000);
- app.set('port', port);
  
  /**
   * Create HTTP server.
@@ -62,6 +56,7 @@
      ? 'Pipe ' + port
      : 'Port ' + port;
  
+     console.log(bind)
    // handle specific listen errors with friendly messages
    switch (error.code) {
      case 'EACCES':
@@ -76,6 +71,13 @@
        throw error;
    }
  }
+ 
+ /**
+  * Get port from environment and store in Express.
+  */
+ 
+  const port = normalizePort(process.env.PORT || '6000');
+  app.set('port', port);
  
  /**
   * Event listener for HTTP server "listening" event.
@@ -93,3 +95,7 @@
  /**
   * Setup DB connection here
   */
+
+  server.listen(port,()=>{
+    console.log(`working`)
+  })
