@@ -3,11 +3,10 @@ import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
 import router from './routes';
-const mlite = require('mlite')(process.env.MLITEKEY || '61bf4faa4f66b50004c61ab2');
+import Logger from './utils/Logger';
 const isDevEnvironment = process.env.NODE_ENV || 'development';
 
 const app = express();
-
 
 app.use(logger(isDevEnvironment ? 'dev' : 'short'));
 app.use(express.json());
@@ -32,7 +31,7 @@ app.use(function(req:any, res:any, next:any) {
 app.use(function(err:any, req:any, res:any, next:any) {
 //   console.log(err, 'APP ERRR')
   const mliteUniqueKey = "File-Storage-util" + String(Date.now() * Math.random()).split(".")[0];
-  mlite.errorX({
+  Logger.errorX({
     stack: err && err.stack,
     message: (err && err.message) || err,
     timestamp: Date.now()
