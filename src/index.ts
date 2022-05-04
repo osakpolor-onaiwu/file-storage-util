@@ -58,7 +58,7 @@ function onError(error: any) {
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-  console.log(bind)
+ 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
@@ -108,9 +108,19 @@ mongoose
   })
 
 
-process.on('unhandledRejection', (reason) => {
-  Logger.error(reason, 'unhandledRejection error');
-  throw reason;
-});
+  const closeOpenConnections = (errorOccurred: boolean) => {
+    Logger.info('Shutting down server and open connections', new Date().toJSON());
+    server.close(() => {
+      Logger.info('Server shut down', new Date().toJSON());
+      mongoose.connection.close(() => {
+        Logger.info('Mongoose connection closed', new Date().toJSON());
+        process.exit(errorOccurred ? 1 : 0);
+      });
+    });
+  };
 
+  process.on('SIGINT', () => {
+    closeOpenConnections(false);
+  });
 
+  
