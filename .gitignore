@@ -1,11 +1,11 @@
 node_modules
 dist/
-.env
+./env
 .DS_Store
 .env.local
 .env.development.local
-
+.env
 /build
-
-
-
+.env-*
+.env.example
+.env.staging

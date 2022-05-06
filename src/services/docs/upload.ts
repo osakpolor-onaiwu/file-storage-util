@@ -47,7 +47,7 @@ export async function upload(data: any) {
                 throw new Error('The extention of your file is different from the type you specified');
             }
             file_name = params?.file?.originalname || `${params.name}.${file_extension}`;
-            console.log(params.file)
+            // console.log(params.file)
             file = params.file.path;
             console.log('file name---', { file, file_name });
         }
