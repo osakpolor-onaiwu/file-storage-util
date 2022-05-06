@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import exampleRoute from './example';
+import docRoute from './docs';
 //import routes here and do router.use to use the route
 
 
@@ -11,7 +11,7 @@ router.get('/',(req,res)=>{
     })
 });
 
-router.use('/example', exampleRoute);
+router.use('/docs', docRoute);
 
 
 export default router;
