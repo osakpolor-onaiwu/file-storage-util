@@ -6,8 +6,7 @@ const secretAccessKey = process.env.AWS_SECRET_KEY;
 const s3BASE = process.env.AWS_S3BASE;
 
 const spec = joi.object({
-  data: joi.string().required(),
-  filename: joi.string(),
+  filename: joi.string().required(),
 })
 
 export default async function s3(data: object) {
@@ -19,20 +18,21 @@ export default async function s3(data: object) {
     });
 
     let s3 = new AWS.S3();
-
-    params.filename = params.filename || Date.now() + '_0_0_';
     let payload = {
       Bucket: 'file-storage-util',
       Key: params.filename,
-      Body: params.data,
-      ACL:'public-read',
     };
-    const upload = s3.putObject(payload).promise();
+
+    const upload = s3.deleteObject(payload).promise();
     const link = upload
-      .then(() => {
-        return s3BASE + params.filename;
+      .then((data) => {
+          
+        console.log('success delete---',data);
+        //delete from db here
+        return 'deleted';
       })
       .catch((err: object) => {
+        console.log('error del--',err);
         throw err;
       });
 

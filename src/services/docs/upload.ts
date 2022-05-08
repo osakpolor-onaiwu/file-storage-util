@@ -23,33 +23,16 @@ export async function upload(data: any) {
         // console.log('params---', params)
 
         let file_extension = null,
-            file_mime_type = null,
-            file_path = null,
+            // file_mime_type = null,
+            // file_path = null,
             file_name: string = '',
             file = null;
 
-        if (!params.url && !params.file && !params.raw_data) {
-            throw new Error('please provide either a file, url or raw data');
-        }
-
-        if ((params.file && params.raw_data)
-            || (params.file && params.url)
-            || (params.url && params.raw_data)) {
-            throw new Error('Please provide either a file, url or raw data, but not more than one of them');
-        }
-
-        if (params.file) {
-            file_extension = path.extname(params?.file?.originalname.toLowerCase());
-            file_mime_type = params?.file?.mimetype;
-            file_path = params?.file?.path;
-
-            if (`.${params.type}` !== file_extension) {
-                throw new Error('The extention of your file is different from the type you specified');
+        if(params.file){
+            return {
+                message: "upload successful",
+                data: params?.file?.originalname,
             }
-            file_name = params?.file?.originalname || `${params.name}.${file_extension}`;
-            // console.log(params.file)
-            file = params.file.path;
-            console.log('file name---', { file, file_name });
         }
 
         if (params.url) {
@@ -72,7 +55,7 @@ export async function upload(data: any) {
             file_name = `${params.name}.${params.type}`;
 
             if (params.type === 'pdf') throw new Error(`raw data can't be pdf, only json and csv are accepted.`);
-            console.log(params.raw_data);
+         
             let parse_json;
             try {
                 parse_json = JSON.parse(params.raw_data);
@@ -114,7 +97,7 @@ export async function upload(data: any) {
             data: file_name,
         }
     } catch (error: any) {
-        console.log("error", error);
+        // console.log("error", error);
         throwcustomError(error.message);
     }
 }
