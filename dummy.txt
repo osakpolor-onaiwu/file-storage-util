@@ -1,0 +1,19 @@
+file: {
+    fieldname: 'file',
+    originalname: 'addresses.csv',
+    encoding: '7bit',
+    mimetype: 'text/csv',
+    size: 328,
+    bucket: 'filestorage-utility',
+    key: '20 05 2022 03:46:11-addresses.csv',
+    acl: 'public-read',
+    contentType: 'application/octet-stream',
+    contentDisposition: null,
+    contentEncoding: null,
+    storageClass: 'STANDARD',
+    serverSideEncryption: null,
+    metadata: { fieldName: 'file' },
+    location: 'https://filestorage-utility.s3.amazonaws.com/20%2005%202022%2003%3A46%3A11-addresses.csv',
+    etag: '"32078264d936c895907f1de187734274"',
+    versionId: undefined
+}

@@ -11,21 +11,18 @@ import { saveDownload } from '../../dal/download';
 
 const spec = joi.object({
     url: joi.string().uri(),
-    raw_data: joi.string(),
-    type: joi.any().valid('json', 'csv', 'pdf').required(),
+    type: joi.any().valid('png', 'svg', 'jpeg').required(),
     name: joi.string().trim(),
     file: joi.object(),
 })
 
-
 export async function upload(data: any) {
-    let file_extension = null,
-    file_name: string = '',
-    file = null;
+    let file_name: string = '';
+    let file_extension = null;
+    let file = null;
     try {
+
         const params = validateSchema(spec, data);
-        // console.log('params---', params.file)
-        if(!params.url && !params.file && !params.raw_data) throw new Error('please provide either a url, raw_data or a file');
 
         if(params.file){
             saveDownload({
@@ -55,49 +52,26 @@ export async function upload(data: any) {
             file = get_file?.data || get_file;
         }
 
-        if (params.raw_data) {
-            if (!params.name) throw new Error('Please provide a name for this raw data');
-            file_name = `${params.name}.${params.type}`;
-
-            if (params.type === 'pdf') throw new Error(`raw data can't be pdf, only json and csv are accepted.`);
-         
-            let parse_json;
-            try {
-                parse_json = JSON.parse(params.raw_data);
-            } catch (error) {
-                // throw new Error(`error passing data, Please ensure it's a valid json`)
-            }
-
-            
-            if (typeof parse_json === 'object') {
-                if (params.type === 'csv' || params.type === 'pdf') throw new Error(`The raw data is a json, you can't provide csv or pdf as the type`);
-                file = params.raw_data;
-            } else {
-                if (params.type === 'json' || params.type === 'pdf') throw new Error(`The raw data is a csv, you can't provide json or pdf as the type`);
-                if (!`${params.raw_data}`.includes(',')) throw new Error(`please provide a delimiter for your csv i.e ,`);
-                file = params.raw_data;
-            }
-        }
-  
         s3({ data: file, filename: file_name })
-            .then(link => {
-                saveDownload({
-                    file: file_name,
-                    url: link,
-                    // merchant_account_id: accountid,
-                },
-                    DownloadModel)
-            }).catch(e => {
-                throw new Error('error uploading data');
-            })
+        .then(link => {
+            saveDownload({
+                file: file_name,
+                url: link,
+                // merchant_account_id: accountid,
+            },
+                DownloadModel)
+        }).catch(e => {
+            throw new Error('error uploading data');
+        })
 
         return {
             message: "upload successful",
             data: file_name,
         }
+
     } catch (error: any) {
         Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
-        // console.log("error", error);
+        console.log("error---", error);
         throwcustomError(error.message);
     }
 }

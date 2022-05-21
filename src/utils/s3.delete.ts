@@ -3,7 +3,6 @@ import AWS from 'aws-sdk';
 import joi from 'joi';
 const accessKeyId = process.env.AWS_ACCESS_KEY;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
-const s3BASE = process.env.AWS_S3BASE;
 
 const spec = joi.object({
   filename: joi.string().required(),
@@ -19,7 +18,7 @@ export default async function s3(data: object) {
 
     let s3 = new AWS.S3();
     let payload = {
-      Bucket: 'file-storage-util',
+      Bucket: 'filestorage-utility',
       Key: params.filename,
     };
 

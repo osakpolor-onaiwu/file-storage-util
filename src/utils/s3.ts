@@ -22,7 +22,7 @@ export default async function s3(data: object) {
 
     params.filename = params.filename || Date.now() + '_0_0_';
     let payload = {
-      Bucket: 'file-storage-util',
+      Bucket: 'filestorage-utility',
       Key: params.filename,
       Body: params.data,
       ACL:'public-read',
@@ -33,11 +33,13 @@ export default async function s3(data: object) {
         return s3BASE + params.filename;
       })
       .catch((err: object) => {
+        console.log(err)
         throw err;
       });
 
     return link;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 }

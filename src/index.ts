@@ -123,4 +123,10 @@ mongoose
     closeOpenConnections(false);
   });
 
+  process.on('unhandledRejection', (reason) => {
+    console.log(reason);
+    Logger.info('unhandledRejection error---', new Date().toJSON());
+    // throw reason;
+  });
+
   
