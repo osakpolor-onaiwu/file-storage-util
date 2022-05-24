@@ -6,9 +6,9 @@ import { registerUser } from '../../services/user/register';
 import { jsonS } from '../../utils/responses';
 
 const registration_schema = Joi.object({
-    email: string().email().trim().required(),
-    password: string().trim().required(),
-    username: string().trim().max(10).required()
+    email: Joi.string().email().trim().required(),
+    password: Joi.string().trim().required(),
+    username: Joi.string().trim().max(10).required()
 })
 
 export default async function register(req:Request, res:Response, next:NextFunction) {

@@ -22,7 +22,7 @@ export interface JWTOptions {
  */
 export function generateToken(payload: any, options: JWTOptions): generateTokenRType {
   const sign_options: SignOptions = {
-    issuer: process.env.PROXY_BASE_URL,
+    issuer: process.env.BASE_URL,
     audience: options.audience || '',
     subject: options.subject || '',
     algorithm: 'HS256',
@@ -46,7 +46,7 @@ export function generateToken(payload: any, options: JWTOptions): generateTokenR
  * @returns string | JwtPayload
  */
 export function verify(token: string) {
-  return jwt.verify(token, process.env.TOKEN_SECRET, { algorithms: ['HS256'], issuer: process.env.PROXY_BASE_URL });
+  return jwt.verify(token, process.env.TOKEN_SECRET, { algorithms: ['HS256'], issuer: process.env.BASE_URL });
 }
 
 /**

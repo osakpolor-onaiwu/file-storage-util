@@ -12,3 +12,11 @@ export function jsonS (res:any, message:string, data:any) {
     })
 }
 
+export function jsonF (res:any, message:string, data:any) {
+    res.status(400).json({
+        status: "error",
+        message: message,
+        data: data,
+    })
+}
+

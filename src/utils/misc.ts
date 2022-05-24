@@ -26,7 +26,18 @@
  */
  export function isObject(data: any) {
     return Object.prototype.toString.call(data) === '[object Object]';
-  }
+}
+
+/**
+ * Determines whether or not an object is empty
+ * @param obj
+ * @returns boolean
+ */
+ export function objectIsEmpty(obj: any) {
+  if (!isObject(obj)) return false;
+
+  return Object.keys(obj).length === 0;
+}
 
 /**
  * Removes properties that do not have valid values from an object

@@ -10,7 +10,7 @@ const logout_schema = Joi.object({
     access_token_id: Joi.string().trim().required(),
   });
 
-export default async function login(req:Request, res:Response, next:NextFunction) {
+export default async function userLogout(req:Request, res:Response, next:NextFunction) {
     try {
         const data = validateSchema(logout_schema, req.body);
         const { user_id, refresh_token, access_token_id } = data;
