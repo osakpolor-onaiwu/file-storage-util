@@ -8,8 +8,7 @@ import { v4 as uuidV4 } from "uuid";
 import ObjectId from "mongodb";
 import moment from "moment";
 import throwcustomError from '../../utils/customerror'
-
-const USER_ACCESS_TOKEN_EXPIRY = 2592000 // 30 days in secs 
+import { USER_ACCESS_TOKEN_EXPIRY } from "../../utils/misc";
 
 export async function authenticateUser(data: User, login_info: LoginInfo) {
     try {
@@ -44,7 +43,7 @@ export async function authenticateUser(data: User, login_info: LoginInfo) {
     }
 }
 
-async function createRefreshToken(user_id: any, access_token_id: string) {
+export async function createRefreshToken(user_id: any, access_token_id: string) {
     if (!user_id || !access_token_id) throw new Error("user id or access token id is missing")
 
     const refresh_token = uuidV4();

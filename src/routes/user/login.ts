@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import Joi, { string } from 'joi';
+import Joi from 'joi';
 import { validateSchema } from '../../utils/validatespec';
-import { User } from '../../models/user';
-import { registerUser } from '../../services/user/register';
 import { jsonS } from '../../utils/responses';
 import { authenticateUser } from '../../services/user/authenticate';
 

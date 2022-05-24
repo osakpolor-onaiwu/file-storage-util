@@ -43,3 +43,4 @@
     return new_data;
   }
   
+export const USER_ACCESS_TOKEN_EXPIRY = 2592000 // 30 days in secs 
