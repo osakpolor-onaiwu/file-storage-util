@@ -22,9 +22,14 @@ const server = http.createServer(app);
  */
 
 
+
+server.on('secureConnection', (socket) => {
+  // HTTPS: secureConnection
+  // HTTP: connection
+  socket.setTimeout(3 * 60 * 1000); // 3 minutes
+})
 server.on('error', onError);
 server.on('listening', onListening);
-
 /**
  * Normalize a port into a number, string, or false.
  */
@@ -78,7 +83,7 @@ function onError(error: any) {
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '6000');
+const port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
 /**

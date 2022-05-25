@@ -21,12 +21,13 @@ const upload = multer({
     s3: s3,
     bucket: 'filestorage-utility',
     acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata: function (req?: any, file?: any, cb?: any) {
       cb(null, { fieldName: file.fieldname });
     },
 
     key: function (req?: any, file?: any, cb?: any) {
-
+      // console.log('lea----',file)
       if (file) req.body.file = file;
       req.body.paths = req.originalUrl
       const validate = handlevalidation(req.body);

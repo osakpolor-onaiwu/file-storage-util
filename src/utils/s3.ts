@@ -6,7 +6,7 @@ const secretAccessKey = process.env.AWS_SECRET_KEY;
 const s3BASE = process.env.AWS_S3BASE;
 
 const spec = joi.object({
-  data: joi.string().required(),
+  data: joi.any().required(),
   filename: joi.string(),
 })
 
@@ -19,7 +19,7 @@ export default async function s3(data: object) {
     });
 
     let s3 = new AWS.S3();
-
+    // console.log(params);
     params.filename = params.filename || Date.now() + '_0_0_';
     let payload = {
       Bucket: 'filestorage-utility',
@@ -33,7 +33,6 @@ export default async function s3(data: object) {
         return s3BASE + params.filename;
       })
       .catch((err: object) => {
-        console.log(err)
         throw err;
       });
 

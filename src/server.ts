@@ -4,6 +4,7 @@ import express from 'express';
 import logger from 'morgan';
 import router from './routes';
 import Logger from './utils/Logger';
+import cors from 'cors';
 const isDevEnvironment = process.env.NODE_ENV || 'development';
 
 const app = express();
@@ -12,9 +13,9 @@ app.use(logger(isDevEnvironment ? 'dev' : 'short'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(function (req:any, res:any, next:any) {
+app.use(cors(),function (req:any, res:any, next:any) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type","Accept", "Authorization", "Origin, X-Requested-With");
   res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
   
   next();

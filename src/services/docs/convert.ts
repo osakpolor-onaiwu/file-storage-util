@@ -3,6 +3,7 @@ import throwcustomError from '../../utils/customerror'
 import joi from 'joi';
 import path from 'path';
 import axios from "axios";
+import s3 from '../../utils/s3';
 import s3Delete from '../../utils/s3.delete';
 import DownloadModel from '../../models/download';
 import { saveDownload } from '../../dal/download';
@@ -93,11 +94,11 @@ export async function convert(data: any) {
 
         if (params.raw_data) {
             if (params.from === 'csv') {
-                file_name = `${params.name}.json`
+                file_name = file_name = `${params.name || new Date() + '-file-storage'}.${params.to}`;
                 converted_to = await csvtojson().fromString(params.raw_data);
                 if (!converted_to) throw new Error('error converting raw data from csv to json');
             } else {
-                file_name = `${params.name}.csv`
+                file_name = file_name = `${params.name || new Date() + '-file-storage'}.${params.to}`;
 
                 try {
                     parse_data = JSON.parse(JSON.stringify(params.raw_data))
@@ -137,6 +138,19 @@ export async function convert(data: any) {
 
             await s3Delete({ filename: params.file?.key });
         }
+  
+        s3({ data: JSON.stringify(converted_to), filename: file_name })
+        .then(link => {
+            saveDownload({
+                file: file_name,
+                url: link,
+                // merchant_account_id: accountid,
+            },
+                DownloadModel)
+        }).catch(e => {
+
+            throw new Error('error uploading data');
+        })
 
         return {
             message: "conversion successful",

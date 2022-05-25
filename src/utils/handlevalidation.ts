@@ -11,8 +11,8 @@ const spec = joi.object({
     raw_data: joi.string(),
     name: joi.string().trim(),
     type: joi.string().required(),
-    from: joi.any().valid('json', 'csv'),
-    to: joi.any().valid('json', 'csv'),
+    from: joi.any().valid('json', 'csv','svg', 'jpeg', 'png','pdf'),
+    to: joi.any().valid('json', 'csv','svg', 'jpeg', 'png','pdf'),
     paths: joi.string().required(),
     file: joi.object(),
   })
@@ -48,6 +48,21 @@ export default function (data:object) {
         }
 
         console.log(file)
+        if(params.from){
+            let file_extension = path.extname(params.file.originalname.toLowerCase());
+    
+            if(`.${params.from}` !== file_extension){
+                throw new Error('the extension of the file must be the same as the from field.');
+            }
+        }
+
+        if (file) {
+            const file_extension = path.extname(file?.originalname?.toLowerCase());
+            if ((file_extension !== `.${type}`)) {
+                throw new Error(`the type you provided is different from the extention of the file uploaded.`);
+            }
+        }
+
         switch (params.paths) {
             case '/docs/convert':
                 if(!ext_type.doc_convert.includes(params.type) || !allowed_mime_types.doc_convert.includes(file.mimetype)) throw new Error(`only json and csv files are supported`);
@@ -76,18 +91,11 @@ export default function (data:object) {
         }
 
 
-        if (file) {
-            const file_extension = path.extname(file?.originalname?.toLowerCase());
-            if ((file_extension !== `.${type}`)) {
-                throw new Error(`the type you provided is different from the extention of the file uploaded.`);
-            }
-        }
-
+      
         return {
             err:null
         }
     } catch (error: any) {
-        console.log('hand -err--',error)
        return {
            err:`${error.message}`,
        };
