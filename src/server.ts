@@ -5,10 +5,11 @@ import logger from 'morgan';
 import router from './routes';
 import Logger from './utils/Logger';
 import cors from 'cors';
+import useragent from "express-useragent";
 const isDevEnvironment = process.env.NODE_ENV || 'development';
 
 const app = express();
-
+app.use(useragent.express());
 app.use(logger(isDevEnvironment ? 'dev' : 'short'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

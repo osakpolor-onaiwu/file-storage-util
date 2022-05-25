@@ -111,6 +111,7 @@ mongoose
     Logger.info('Mongoose connection disconnected');
     console.log(err)
   })
+  
 
 
   const closeOpenConnections = (errorOccurred: boolean) => {
