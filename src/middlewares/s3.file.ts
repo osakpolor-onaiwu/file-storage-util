@@ -42,7 +42,7 @@ const upload = multer({
 const uploadfile = upload.single('file');
 
 export default function fileupload(req: any, res: any, next: any) {
-
+  console.log("bod: ",req.query);
   uploadfile(req, res, function (err) {
     if (err) {
       console.log(err);
