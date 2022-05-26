@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 export interface Download extends Pick<Document, '_id'> {
   url?: string;
-  accountid?: number;
+  accountid?: string;
   file?: string;
 }
 
@@ -13,7 +13,7 @@ const DownloadSchema: Schema<Download> = new Schema(
     },
 
     accountid: {
-      type: Number,
+      type: String,
       required: false,
     },
     file: {

@@ -10,16 +10,19 @@ const spec = joi.object({
   filename: joi.string(),
 })
 
-export default async function s3(data: object) {
+export default async function s3(data: object,flag?:string) {
+
   try {
     const params = validateSchema(spec,data);
+    if(flag && flag === 'json') params.data = JSON.stringify(params.data);
+   
     AWS.config.update({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
     });
 
     let s3 = new AWS.S3();
-    // console.log(params);
+
     params.filename = params.filename || Date.now() + '_0_0_';
     let payload = {
       Bucket: 'filestorage-utility',
@@ -38,7 +41,6 @@ export default async function s3(data: object) {
 
     return link;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }

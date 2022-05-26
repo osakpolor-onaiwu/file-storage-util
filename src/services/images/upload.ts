@@ -7,14 +7,35 @@ import s3 from '../../utils/s3';
 import Logger from '../../utils/Logger'
 import DownloadModel from '../../models/download';
 import { saveDownload } from '../../dal/download';
+import Jimp from 'jimp';
 
 
 const spec = joi.object({
     url: joi.string().uri(),
-    type: joi.any().valid('png', 'svg', 'jpeg').required(),
+    type: joi.any().valid('png', 'bmp', 'jpeg','jpg').required(),
     name: joi.string().trim(),
     file: joi.object(),
+    account_id: joi.string().trim().required(),
 })
+
+const jimp = async (file:string,file_name:string)=>{
+    try {
+        console.log('---***',file_name)
+        const image = await Jimp.read(file);   
+
+        if(file_name.includes('png')){
+            return image.getBufferAsync(Jimp.MIME_PNG);
+        }else if(file_name.includes('bmp')){
+            image.getBufferAsync(Jimp.MIME_BMP);
+        }
+        else{
+            return image.getBufferAsync(Jimp.MIME_JPEG);
+        }
+   
+    } catch (err) {
+        throw (err);
+    }
+}
 
 export async function upload(data: any) {
     let file_name: string = '';
@@ -33,7 +54,7 @@ export async function upload(data: any) {
                 DownloadModel)
             return {
                 message: "upload successful",
-                data: params?.file?.originalname,
+                data: params.file.key,
             }
         }
 
@@ -45,11 +66,10 @@ export async function upload(data: any) {
                 throw new Error('The extention of your file is different from the type you specified');
             }
 
-            file_name = `${params.name}${file_extension}`;
-            const get_file = await axios.get(params.url);
-            if (!get_file) throw new Error('The file in the url could not be found');
+            file_name = `${Date.now()+'-'+params.name}${file_extension}`;
+           
 
-            file = get_file?.data || get_file;
+            file = await jimp(params.url, file_name);;
         }
 
         s3({ data: file, filename: file_name })
@@ -57,7 +77,7 @@ export async function upload(data: any) {
             saveDownload({
                 file: file_name,
                 url: link,
-                // merchant_account_id: accountid,
+                accountid: params.account_id,
             },
                 DownloadModel)
         }).catch(e => {

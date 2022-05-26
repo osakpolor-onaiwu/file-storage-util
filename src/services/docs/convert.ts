@@ -10,6 +10,7 @@ import { saveDownload } from '../../dal/download';
 import csvtojson from "csvtojson";
 import jsonexport from "jsonexport";
 import Logger from '../../utils/Logger';
+import {parse} from 'flatted'
 
 const spec = joi.object({
     url: joi.string().uri(),
@@ -18,6 +19,7 @@ const spec = joi.object({
     name: joi.string().trim(),
     from: joi.any().valid('json', 'csv').required(),
     to: joi.any().valid('json', 'csv').required(),
+    account_id: joi.string().trim().required(),
     options: joi.object({
         rowDelimiter: joi.string().trim(), // Change the file row delimiter, Defaults to , (cvs format). Use \t for xls format. Use ; for (windows excel .csv format).
         booleanTrueString: joi.string().trim(), //Will be used instead of true
@@ -36,6 +38,7 @@ export async function convert(data: any) {
     let converted_to;
     let parse_data = null;
     let file;
+    let flag;
 
     try {
         if (data.options) {
@@ -74,8 +77,9 @@ export async function convert(data: any) {
             if (!get_file || !get_file.data) throw new Error('The file in the url could not be found');
 
             if (file_extension === '.csv' && params.from === 'csv') {
-                file_name = `${params.name || new Date() + '-file-storage-'}.${params.to}`;
-
+                file_name = `${Date.now()+params.name || Date.now()+'-file-storage-'}.${params.to}`;
+                flag='json';
+                
                 converted_to = await csvtojson().fromString(get_file.data);
                 if (!converted_to) throw new Error('error converting url from csv to json');
 
@@ -86,7 +90,7 @@ export async function convert(data: any) {
                     throw new Error('data could not be parsed to an object');
                 }
 
-                file_name = `${params.name || new Date() + '-file-storage-'}.${params.to}`;
+                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
                 converted_to = await jsonexport(parse_data, options)
                 if (!converted_to) throw new Error('error converting raw data from json to csv');
             }
@@ -94,17 +98,20 @@ export async function convert(data: any) {
 
         if (params.raw_data) {
             if (params.from === 'csv') {
-                file_name = file_name = `${params.name || new Date() + '-file-storage'}.${params.to}`;
+                flag = 'json';
+                if(params.raw_data.includes('{') || params.raw_data.includes('}')) throw new Error('please provide a valid csv for the raw data')
+                file_name = file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
                 converted_to = await csvtojson().fromString(params.raw_data);
+               
                 if (!converted_to) throw new Error('error converting raw data from csv to json');
             } else {
-                file_name = file_name = `${params.name || new Date() + '-file-storage'}.${params.to}`;
-
+                file_name = file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
                 try {
-                    parse_data = JSON.parse(JSON.stringify(params.raw_data))
+                    parse_data = JSON.parse(String(params.raw_data));
                 } catch (error) {
                     throw new Error('please pass a valid json');
                 }
+               
                 converted_to = await jsonexport(parse_data, options)
                 if (!converted_to) throw new Error('error converting raw data from json to csv');
             }
@@ -114,10 +121,12 @@ export async function convert(data: any) {
             file = params.file.key;
             file_extension = path.extname(params.file?.location.toLowerCase());
             const get_file: any = await axios.get(params.file?.location);
+            
             if (!get_file || !get_file.data) throw new Error('The file in the url could not be found');
 
             if (file_extension === '.csv' && params.from === 'csv' && params.to === 'json') {
-                file_name = `${params.name || new Date() + '-file-storage-'}${params.to}`;
+                flag = 'json';
+                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
 
                 converted_to = await csvtojson().fromString(get_file.data);
                 if (!converted_to) throw new Error('error converting url from csv to json');
@@ -130,7 +139,7 @@ export async function convert(data: any) {
                     throw new Error('data could not be parsed to an object');
                 }
                 
-                file_name = `${params.name || new Date() + '-file-storage-'}${params.to}`;
+                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
                 converted_to = await jsonexport(parse_data, options);
                 if (!converted_to) throw new Error('error converting raw data from json to csv');
                    
@@ -139,16 +148,15 @@ export async function convert(data: any) {
             await s3Delete({ filename: params.file?.key });
         }
   
-        s3({ data: JSON.stringify(converted_to), filename: file_name })
+        s3({ data: converted_to, filename: file_name },flag)
         .then(link => {
             saveDownload({
                 file: file_name,
                 url: link,
-                // merchant_account_id: accountid,
+                accountid: params.account_id,
             },
                 DownloadModel)
         }).catch(e => {
-
             throw new Error('error uploading data');
         })
 

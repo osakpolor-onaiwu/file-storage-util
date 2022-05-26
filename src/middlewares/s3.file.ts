@@ -5,7 +5,6 @@ const secretAccessKey = process.env.AWS_SECRET_KEY;
 const s3BASE = process.env.AWS_S3BASE;
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import moment from 'moment';
 import { jsonErr } from '../utils/responses';
 
 
@@ -17,6 +16,10 @@ let s3 = new AWS.S3({
 
 
 const upload = multer({
+  limits:{
+    fieldSize:2 * 1024 * 1024,
+    fileSize: 2 * 1024 * 1024
+  },
   storage: multerS3({
     s3: s3,
     bucket: 'filestorage-utility',
@@ -27,14 +30,13 @@ const upload = multer({
     },
 
     key: function (req?: any, file?: any, cb?: any) {
-      // console.log('lea----',file)
       if (file) req.body.file = file;
       req.body.paths = req.originalUrl
       const validate = handlevalidation(req.body);
       if (validate.err) {
         cb(new Error(validate.err));
       }
-      cb(null, `${moment(new Date()).format('DD MM YYYY hh:mm:ss')}-${file.originalname}`);
+      cb(null, `${Date.now()}-${file.originalname}`);
     }
   })
 })
@@ -42,10 +44,10 @@ const upload = multer({
 const uploadfile = upload.single('file');
 
 export default function fileupload(req: any, res: any, next: any) {
-  console.log("bod: ",req.query);
+
   uploadfile(req, res, function (err) {
     if (err) {
-      console.log(err);
+      // console.log(err);
       if (`${err?.message}`?.includes('Inaccessible host')) err.message = 'error uploading file to host'
       jsonErr(res, err.message, null);
     } else {
@@ -54,10 +56,3 @@ export default function fileupload(req: any, res: any, next: any) {
   })
 }
 
-
-// file: {
-//   fieldname: 'file',
-//   originalname: 'addresses.csv',
-//   encoding: '7bit',
-//   mimetype: 'text/csv'
-// }

@@ -15,6 +15,7 @@ const spec = joi.object({
     type: joi.any().valid('json', 'csv', 'pdf').required(),
     name: joi.string().trim(),
     file: joi.object(),
+    account_id: joi.string().trim().required(),
 })
 
 
@@ -22,16 +23,20 @@ export async function upload(data: any) {
     let file_extension = null,
     file_name: string = '',
     file = null;
+    
     try {
         const params = validateSchema(spec, data);
-        // console.log('params---', params.file)
-        if(!params.url && !params.file && !params.raw_data) throw new Error('please provide either a url, raw_data or a file');
-
+ 
+        if((!params.url && !params.file && !params.raw_data)
+        || (params.url && params.raw_data)
+        ) throw new Error('please provide either a url, raw_data or a file, but not more than one at a time.');
+       
         if(params.file){
+            file_extension = path.extname(params.file.key.toLowerCase());
             saveDownload({
                 file: params.file.key,
                 url: params?.file.location,
-                // merchant_account_id: accountid,
+                accountid: params.account_id,
             },
                 DownloadModel)
             return {
@@ -48,16 +53,21 @@ export async function upload(data: any) {
                 throw new Error('The extention of your file is different from the type you specified');
             }
 
-            file_name = `${params.name}${file_extension}`;
+            file_name = `${Date.now()+'-'+params.name}${file_extension}`;
             const get_file = await axios.get(params.url);
-            if (!get_file) throw new Error('The file in the url could not be found');
+            if (!get_file || !get_file?.data) throw new Error('The file in the url could not be found');
 
-            file = get_file?.data || get_file;
+            if(file_extension.includes('json')){
+                file = JSON.stringify(get_file?.data)
+            }else{
+                file = get_file?.data || get_file;
+            }
+            
         }
 
         if (params.raw_data) {
             if (!params.name) throw new Error('Please provide a name for this raw data');
-            file_name = `${params.name}.${params.type}`;
+            file_name = `${Date.now()+'-'+params.name}.${params.type}`;
 
             if (params.type === 'pdf') throw new Error(`raw data can't be pdf, only json and csv are accepted.`);
          
@@ -84,10 +94,11 @@ export async function upload(data: any) {
                 saveDownload({
                     file: file_name,
                     url: link,
-                    // merchant_account_id: accountid,
+                    accountid: params.account_id,
                 },
                     DownloadModel)
             }).catch(e => {
+                console.log(e)
                 throw new Error('error uploading data');
             })
 
@@ -96,8 +107,10 @@ export async function upload(data: any) {
             data: file_name,
         }
     } catch (error: any) {
+        if(error?.code ==='ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
         Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
-        // console.log("error", error);
+        
+        console.log("error---", error);
         throwcustomError(error.message);
     }
 }

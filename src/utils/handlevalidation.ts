@@ -11,8 +11,8 @@ const spec = joi.object({
     raw_data: joi.string(),
     name: joi.string().trim(),
     type: joi.string().required(),
-    from: joi.any().valid('json', 'csv','svg', 'jpeg', 'png','pdf'),
-    to: joi.any().valid('json', 'csv','svg', 'jpeg', 'png','pdf'),
+    from: joi.any().valid('json', 'csv','jpg', 'jpeg', 'png','pdf'),
+    to: joi.any().valid('json', 'csv', 'jpg', 'png','pdf'),
     paths: joi.string().required(),
     file: joi.object(),
   })
@@ -24,14 +24,14 @@ export default function (data:object) {
     const allowed_mime_types = {
         doc_upload: ['text/csv', 'application/json', 'application/pdf'],
         doc_convert: ['text/csv', 'application/json'],
-        image_upload: ['image/png','image/jpeg'],
+        image_upload: ['image/png','image/jpeg', 'image/bmp'],
         image_convert: ['image/png','image/jpeg']
     }
     const ext_type = {
         doc_upload:['json','csv','pdf'],
         doc_convert:['json','csv'],
-        img_upload:['svg','jpeg','png'],
-        img_convert:['jpeg','png'],
+        img_upload:['bmp','jpeg','jpg','png'],
+        img_convert:['jpeg','png','jpg'],
     }
     try {
         // console.log('handle-----',data);
@@ -47,7 +47,7 @@ export default function (data:object) {
             throw new Error(`${message}`)
         }
 
-        console.log(file)
+        // console.log(file)
         if(params.from){
             let file_extension = path.extname(params.file.originalname.toLowerCase());
     

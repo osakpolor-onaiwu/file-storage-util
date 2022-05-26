@@ -59,7 +59,7 @@ export function validateUserToken(req: Request, res: Response, next: NextFunctio
 
   // check that the value of the `Authorization` header contains both `Bearer` and `${value}`
   if (token.length !== 2)
-    throw customError('invalid_request');
+    throw customError('invalid_request,please provide a valid token.');
 
   if (token[0] !== 'Bearer')
     throw customError('Token type provided is not valid');

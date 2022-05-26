@@ -13,17 +13,19 @@ import Logger from '../../utils/Logger';
 const spec = joi.object({
     url: joi.string().uri(),
     name: joi.string().trim(),
-    from: joi.any().valid('jpeg', 'png').required(),
-    to: joi.any().valid('jpeg', 'png').required(),
+    from: joi.any().valid('jpeg', 'png','jpg').required(),
+    to: joi.any().valid('jpeg', 'png','jpg').required(),
     file: joi.object(),
-  
+    account_id: joi.string().trim().required(),
 })
 
 const jimp = async (file:string,file_name:string)=>{
     try {
         const image = await Jimp.read(file);   
+        file_name = file_name.slice(-3);
 
         if(file_name.includes('png')){
+            console.log('its got it----')
             return image.getBufferAsync(Jimp.MIME_PNG);
         }else{
             return image.getBufferAsync(Jimp.MIME_JPEG);
@@ -46,6 +48,11 @@ export async function convert(data: any) {
         if (params.from === params.to) {
             throw new Error('from and to cannot be the same.');
         }
+        if(
+            ( params.from === 'jpeg' && params.to === 'jpg') 
+            || (params.from === 'jpg' && params.to === 'jpeg')){
+                throw new Error('from and to cannot be the same. jpeg is same as jpg')
+            }
 
         if (params.url) {
             file_extension = path.extname(params?.url?.toLowerCase());
@@ -53,12 +60,17 @@ export async function convert(data: any) {
                 throw new Error('Ensure the extention of the url is same as the from field supplied');
             }
 
-            if (file_extension === '.jpeg' && params.from === 'jpeg') {
-                file_name = `${params.name || new Date() + '-file-storage-'}.png`;         
+            if ((file_extension === '.jpeg' || file_extension === '.jpg') && (params.from === 'jpeg' || params.from === 'jpg')) {
+                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.png`;         
                 converted_to = await jimp(params.url, file_name);
               
             } else {
-                file_name = `${params.name || new Date() + '-file-storage-'}.jpeg`;
+                if(params.fro === 'jpg'){
+                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpg`;
+                }else{
+                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpeg`;
+                }
+                
                 converted_to = await jimp(params.url, file_name);
             }
         }
@@ -67,11 +79,11 @@ export async function convert(data: any) {
             const key = `${params.file.key}`.split('.')[0];
             file_extension = path.extname(params.file?.location.toLowerCase());
            
-            if ( params.from === 'jpeg' && params.to === 'png') {
-                file_name = `${params.name || key}.png`;
+            if ( (params.from === 'jpeg' || params.from === 'jpg') && params.to === 'png') {
+                file_name = `${Date.now()+params.name || key}.png`;
                 converted_to = await jimp(params.file.location, file_name)
             } else {
-                file_name = `${params.name || key}.jpeg`;
+                file_name = `${Date.now()+params.name || key}.jpeg`;
                 converted_to = await jimp(params.file.location, file_name)
             }
 
@@ -84,7 +96,7 @@ export async function convert(data: any) {
             saveDownload({
                 file: file_name,
                 url: link,
-                // merchant_account_id: accountid,
+                accountid: params.account_id,
             },
                 DownloadModel)
         }).catch(e => {
