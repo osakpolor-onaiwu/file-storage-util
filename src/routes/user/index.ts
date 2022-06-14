@@ -12,13 +12,7 @@ router.post('/register', register);
 router.post('/login', extractClientInfo, login);
 router.post('/token/referesh', extractClientInfo, refreshUserToken);
 router.post('/logout', extractClientInfo, userLogout);
-router.post('/test', validateUserToken, (req: Request, res: Response, next: NextFunction) => {
-    try {
-        res.status(200).send("OK");
-    } catch (error: any) {
-        next(error);
-    }
-});
+router.post('/test', validateUserToken);
 
 
 export default router;

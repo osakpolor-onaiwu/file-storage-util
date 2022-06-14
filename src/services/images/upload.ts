@@ -20,7 +20,7 @@ const spec = joi.object({
 
 const jimp = async (file:string,file_name:string)=>{
     try {
-        console.log('---***',file_name)
+        
         const image = await Jimp.read(file);   
 
         if(file_name.includes('png')){
@@ -91,7 +91,6 @@ export async function upload(data: any) {
 
     } catch (error: any) {
         Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
-        console.log("error---", error);
         throwcustomError(error.message);
     }
 }

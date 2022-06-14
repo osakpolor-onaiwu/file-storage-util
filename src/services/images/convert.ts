@@ -25,7 +25,7 @@ const jimp = async (file:string,file_name:string)=>{
         file_name = file_name.slice(-3);
 
         if(file_name.includes('png')){
-            console.log('its got it----')
+            
             return image.getBufferAsync(Jimp.MIME_PNG);
         }else{
             return image.getBufferAsync(Jimp.MIME_JPEG);
