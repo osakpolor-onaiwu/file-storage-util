@@ -4,6 +4,7 @@ import { UserAccessTokenPayload } from '../types/user';
 import { verify as verifyJwt } from '../utils/jwt';
 import { objectIsEmpty } from '../utils/misc';
 import customError from "../utils/customerror";
+import { jsonS } from '../utils/responses';
 
 export async function test(req: Request, res: Response, next: NextFunction) {
     try {
@@ -80,8 +81,8 @@ export function validateUserToken(req: Request, res: Response, next: NextFunctio
 
       req.body.user_id = user._id;
       req.query.user_id = user._id;
-
-      next();
+      jsonS(res, "user fetched", user);
+      // next();
   }).catch((error) => {
       if (error.name === 'TokenExpiredError') {
           throw customError('the token provided has expired');
