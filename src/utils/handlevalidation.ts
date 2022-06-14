@@ -34,7 +34,7 @@ export default function (data:object) {
         img_convert:['jpeg','png','jpg'],
     }
     try {
-        // console.log('handle-----',data);
+     
         const params = validateSchema(spec, data);   
         const { file, url, type, raw_data } = params;
 
@@ -47,7 +47,7 @@ export default function (data:object) {
             throw new Error(`${message}`)
         }
 
-        // console.log(file)
+       
         if(params.from){
             let file_extension = path.extname(params.file.originalname.toLowerCase());
     
