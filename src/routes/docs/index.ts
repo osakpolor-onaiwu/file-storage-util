@@ -5,8 +5,6 @@ import convert from './convert';
 import s3file from '../../middlewares/s3.file';
 import { validateUserToken } from '../../middlewares/validate.user.token';
 
-// router.post('/upload', s3file, upload);
-// router.post('/convert', s3file, convert);
 router.post('/upload', validateUserToken, s3file, upload);
 router.post('/convert', validateUserToken, s3file, convert);
 //other methods here

@@ -6,6 +6,7 @@ export async function extractClientInfo(req: Request, res: Response, next: NextF
       req.body.user_agent = req.useragent?.source || ""
       return next();
     } catch (error) {
+      console.log('ex-e---',error);
       next(error);
     }
   }

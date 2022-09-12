@@ -13,7 +13,7 @@ const spec = joi.object({
     url: joi.string().uri(),
     raw_data: joi.string(),
     type: joi.any().valid('json', 'csv', 'pdf').required(),
-    name: joi.string().trim(),
+    name: joi.string().trim().required().error(new Error('Please provide a name')),
     file: joi.object(),
     account_id: joi.string().trim().required(),
 })
@@ -33,10 +33,13 @@ export async function upload(data: any) {
        
         if(params.file){
             file_extension = path.extname(params.file.key.toLowerCase());
+            file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}${file_extension}`.split(' ').join('');
             saveDownload({
-                file: params.file.key,
+                file: params.name,
                 url: params?.file.location,
+                key: params.file.key,
                 accountid: params.account_id,
+                type:'document upload'
             },
                 DownloadModel)
             return {
@@ -53,7 +56,7 @@ export async function upload(data: any) {
                 throw new Error('The extention of your file is different from the type you specified');
             }
 
-            file_name = `${Date.now()+'-'+params.name}${file_extension}`;
+            file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}${file_extension}`.split(' ').join('');
             const get_file = await axios.get(params.url);
             if (!get_file || !get_file?.data) throw new Error('The file in the url could not be found');
 
@@ -66,9 +69,8 @@ export async function upload(data: any) {
         }
 
         if (params.raw_data) {
-            if (!params.name) throw new Error('Please provide a name for this raw data');
-            file_name = `${Date.now()+'-'+params.name}.${params.type}`;
-
+            file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.type}`.split(' ').join('');
+          
             if (params.type === 'pdf') throw new Error(`raw data can't be pdf, only json and csv are accepted.`);
          
             let parse_json;
@@ -90,17 +92,18 @@ export async function upload(data: any) {
         }
   
         s3({ data: file, filename: file_name })
-            .then(link => {
-                saveDownload({
-                    file: file_name,
-                    url: link,
-                    accountid: params.account_id,
-                },
-                    DownloadModel)
-            }).catch(e => {
-                console.log(e)
-                throw new Error('error uploading data');
-            })
+        .then(link => {
+            saveDownload({
+                file: params.name,
+                key:file_name,
+                url: link,
+                accountid: params.account_id,
+                type:'document upload'
+            },
+                DownloadModel)
+        }).catch(e => {
+            throw new Error(e);
+        })
 
         return {
             message: "upload successful",
@@ -110,7 +113,6 @@ export async function upload(data: any) {
         if(error?.code ==='ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
         Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
         
-        console.log("error---", error);
         throwcustomError(error.message);
     }
 }

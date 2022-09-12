@@ -1,8 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 export interface Download extends Pick<Document, '_id'> {
   url?: string;
-  accountid?: string;
+  accountid: string;
   file?: string;
+  key?: string;
+  type?: string;
 }
 
 const DownloadSchema: Schema<Download> = new Schema(
@@ -20,6 +22,14 @@ const DownloadSchema: Schema<Download> = new Schema(
       type: String,
       required: true,
     },
+    key: { 
+      type:String,
+      required: false,
+    },
+    type: {
+      type: String,
+      required: false,
+    }
   },
   { timestamps: true },
 );

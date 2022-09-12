@@ -12,7 +12,7 @@ import Logger from '../../utils/Logger';
 
 const spec = joi.object({
     url: joi.string().uri(),
-    name: joi.string().trim(),
+    name: joi.string().trim().required().error(new Error('please provide a name')),
     from: joi.any().valid('jpeg', 'png','jpg').required(),
     to: joi.any().valid('jpeg', 'png','jpg').required(),
     file: joi.object(),
@@ -61,14 +61,14 @@ export async function convert(data: any) {
             }
 
             if ((file_extension === '.jpeg' || file_extension === '.jpg') && (params.from === 'jpeg' || params.from === 'jpg')) {
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.png`;         
+                file_name = `${Date.now()+params.name}.png`;         
                 converted_to = await jimp(params.url, file_name);
               
             } else {
-                if(params.fro === 'jpg'){
-                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpg`;
+                if(params.from === 'jpg'){
+                    file_name = `${Date.now()+params.name}.jpg`;
                 }else{
-                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpeg`;
+                    file_name = `${Date.now()+params.name}.jpeg`;
                 }
                 
                 converted_to = await jimp(params.url, file_name);
@@ -94,9 +94,11 @@ export async function convert(data: any) {
         s3({ data: converted_to, filename: file_name })
         .then(link => {
             saveDownload({
-                file: file_name,
+                file: params.name,
+                key:file_name,
                 url: link,
                 accountid: params.account_id,
+                type:'image conversion'
             },
                 DownloadModel)
         }).catch(e => {

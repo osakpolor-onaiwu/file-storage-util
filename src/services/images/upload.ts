@@ -13,7 +13,7 @@ import Jimp from 'jimp';
 const spec = joi.object({
     url: joi.string().uri(),
     type: joi.any().valid('png', 'bmp', 'jpeg','jpg').required(),
-    name: joi.string().trim(),
+    name: joi.string().trim().required().error(new Error('Please provide a name')),
     file: joi.object(),
     account_id: joi.string().trim().required(),
 })
@@ -44,17 +44,25 @@ export async function upload(data: any) {
     try {
 
         const params = validateSchema(spec, data);
-
+        let file_url = null;
+        console.log(params);
         if(params.file){
+            file_url = params?.file.location;
             saveDownload({
-                file: params.file.key,
+                file: params.name,
                 url: params?.file.location,
-                // merchant_account_id: accountid,
+                accountid: params.account_id,
+                key: params.file.key,
+                type:'image upload'
             },
                 DownloadModel)
             return {
                 message: "upload successful",
-                data: params.file.key,
+                data: {
+                    file_name:params.name,
+                    location:file_url,
+                    original_name:params?.file?.originalname,
+                },
             }
         }
 
@@ -72,12 +80,16 @@ export async function upload(data: any) {
             file = await jimp(params.url, file_name);;
         }
 
+      
         s3({ data: file, filename: file_name })
         .then(link => {
+            file_url = link;
             saveDownload({
-                file: file_name,
+                file: params.name,
+                key:file_name,
                 url: link,
                 accountid: params.account_id,
+                type:'image upload'
             },
                 DownloadModel)
         }).catch(e => {
@@ -86,11 +98,17 @@ export async function upload(data: any) {
 
         return {
             message: "upload successful",
-            data: file_name,
+            data: {
+                file_name:params.name,
+                location:file_url
+            },
         }
 
     } catch (error: any) {
+        //for when the url does not contain any thing. if a url is passed
+        if(error?.code ==='ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
         Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        console.log('upload img err---',error)
         throwcustomError(error.message);
     }
 }

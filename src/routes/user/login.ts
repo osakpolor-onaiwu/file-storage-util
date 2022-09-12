@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { validateSchema } from '../../utils/validatespec';
 import { jsonS } from '../../utils/responses';
 import { authenticateUser } from '../../services/user/authenticate';
+import throwcustomError from "../../utils/customerror";
 
 const login_schema = Joi.object({
     email: Joi.string().email().trim(),
@@ -20,7 +21,7 @@ export default async function login(req:Request, res:Response, next:NextFunction
             user_agent: data['user_agent'],
           });
         jsonS(res, response?.message || "Login successful", response?.data);
-    } catch (e) {
-        next(e);
+    } catch (e: any) {
+        throwcustomError(e.message);
     }
 }

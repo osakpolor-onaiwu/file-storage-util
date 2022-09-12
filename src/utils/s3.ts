@@ -4,6 +4,7 @@ import joi from 'joi';
 const accessKeyId = process.env.AWS_ACCESS_KEY;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
 const s3BASE = process.env.AWS_S3BASE;
+import Logger from '../utils/Logger'
 
 const spec = joi.object({
   data: joi.any().required(),
@@ -31,6 +32,7 @@ export default async function s3(data: object,flag?:string) {
       ACL:'public-read',
     };
     const upload = s3.putObject(payload).promise();
+    //try switching to async
     const link = upload
       .then(() => {
         return s3BASE + params.filename;
@@ -40,7 +42,8 @@ export default async function s3(data: object,flag?:string) {
       });
 
     return link;
-  } catch (error) {
+  } catch (error:any) {
+    Logger.errorX([error, error.stack, new Date().toJSON()], 's3_error');
     throw error;
   }
 }

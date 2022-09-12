@@ -10,13 +10,12 @@ import { saveDownload } from '../../dal/download';
 import csvtojson from "csvtojson";
 import jsonexport from "jsonexport";
 import Logger from '../../utils/Logger';
-import {parse} from 'flatted'
 
 const spec = joi.object({
     url: joi.string().uri(),
     file: joi.object(),
     raw_data: joi.string(),
-    name: joi.string().trim(),
+    name: joi.string().trim().required().error(new Error('Please provide a name')),
     from: joi.any().valid('json', 'csv').required(),
     to: joi.any().valid('json', 'csv').required(),
     account_id: joi.string().trim().required(),
@@ -77,7 +76,7 @@ export async function convert(data: any) {
             if (!get_file || !get_file.data) throw new Error('The file in the url could not be found');
 
             if (file_extension === '.csv' && params.from === 'csv') {
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage-'}.${params.to}`;
+                file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 flag='json';
                 
                 converted_to = await csvtojson().fromString(get_file.data);
@@ -90,7 +89,7 @@ export async function convert(data: any) {
                     throw new Error('data could not be parsed to an object');
                 }
 
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
+                file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 converted_to = await jsonexport(parse_data, options)
                 if (!converted_to) throw new Error('error converting raw data from json to csv');
             }
@@ -100,12 +99,12 @@ export async function convert(data: any) {
             if (params.from === 'csv') {
                 flag = 'json';
                 if(params.raw_data.includes('{') || params.raw_data.includes('}')) throw new Error('please provide a valid csv for the raw data')
-                file_name = file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
+                file_name = file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 converted_to = await csvtojson().fromString(params.raw_data);
                
                 if (!converted_to) throw new Error('error converting raw data from csv to json');
             } else {
-                file_name = file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
+                file_name = file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 try {
                     parse_data = JSON.parse(String(params.raw_data));
                 } catch (error) {
@@ -126,7 +125,7 @@ export async function convert(data: any) {
 
             if (file_extension === '.csv' && params.from === 'csv' && params.to === 'json') {
                 flag = 'json';
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
+                file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
 
                 converted_to = await csvtojson().fromString(get_file.data);
                 if (!converted_to) throw new Error('error converting url from csv to json');
@@ -139,21 +138,25 @@ export async function convert(data: any) {
                     throw new Error('data could not be parsed to an object');
                 }
                 
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.${params.to}`;
+                file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 converted_to = await jsonexport(parse_data, options);
                 if (!converted_to) throw new Error('error converting raw data from json to csv');
-                   
+          
             }
 
             await s3Delete({ filename: params.file?.key });
         }
   
+        let file_url = null;
         s3({ data: converted_to, filename: file_name },flag)
         .then(link => {
+            file_url = link;
             saveDownload({
-                file: file_name,
+                file: params.name,
+                key:file_name,
                 url: link,
                 accountid: params.account_id,
+                type:'document conversion'
             },
                 DownloadModel)
         }).catch(e => {
@@ -162,7 +165,11 @@ export async function convert(data: any) {
 
         return {
             message: "conversion successful",
-            data:converted_to
+            data:{
+               file_name: params.name,
+               key:converted_to,
+               location:file_url
+            }
         }
 
     } catch (error: any) {

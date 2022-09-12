@@ -6,8 +6,9 @@ export interface User extends Pick<Document, "_id"> {
   password?: string;
   hash_password?: string;
   username?: string;
-  blacklisted?: boolean
-}
+  blacklisted?: boolean;
+  plan_type?: string;
+};
 
 const UserSchema: Schema<User> = new Schema(
   {

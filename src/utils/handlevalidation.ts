@@ -1,10 +1,6 @@
-import { jsonS, jsonErr } from './responses';
-import s3Delete from './s3.delete';
 import joi from 'joi';
 import { validateSchema } from './validatespec';
 import path from 'path';
-import DownloadModel from '../models/download';
-import { saveDownload } from '../dal/download';
 
 const spec = joi.object({
     url: joi.string().uri(),
@@ -50,7 +46,7 @@ export default function (data:object) {
        
         if(params.from){
             let file_extension = path.extname(params.file.originalname.toLowerCase());
-    
+            if(file_extension === '.jpg') file_extension = '.jpeg'
             if(`.${params.from}` !== file_extension){
                 throw new Error('the extension of the file must be the same as the from field.');
             }
@@ -90,8 +86,6 @@ export default function (data:object) {
                 break;
         }
 
-
-      
         return {
             err:null
         }

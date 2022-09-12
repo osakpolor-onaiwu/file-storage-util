@@ -3,7 +3,8 @@ import Joi, { string } from 'joi';
 import { validateSchema } from '../../utils/validatespec';
 import { User } from '../../models/user';
 import { registerUser } from '../../services/user/register';
-import { jsonS } from '../../utils/responses';
+import { jsonS, jsonErr } from '../../utils/responses';
+
 
 const registration_schema = Joi.object({
     email: Joi.string().email().trim().required(),
@@ -16,7 +17,8 @@ export default async function register(req:Request, res:Response, next:NextFunct
         const user = validateSchema(registration_schema, req.body) as User;
         const response = await registerUser(user);
         jsonS(res, response?.message || "User registered", {});
-    } catch (e) {
-        next(e);
+    } catch (e: any) {
+        console.error('e---',e)
+        jsonErr(res,e.message, null);
     }
 }
