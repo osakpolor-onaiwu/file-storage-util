@@ -26,7 +26,7 @@ const server = http.createServer(app);
 server.on('secureConnection', (socket) => {
   // HTTPS: secureConnection
   // HTTP: connection
-  socket.setTimeout(3 * 60 * 1000); // 3 minutes
+  socket.setTimeout(1 * 60 * 1000); // 1 minutes
 })
 server.on('error', onError);
 server.on('listening', onListening);
@@ -130,7 +130,7 @@ mongoose
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.log(reason);
+    console.log('reason---',reason);
     Logger.info('unhandledRejection error---', new Date().toJSON());
     // throw reason;
   });

@@ -9,7 +9,8 @@ import { jsonS, jsonErr } from '../../utils/responses';
 const registration_schema = Joi.object({
     email: Joi.string().email().trim().required(),
     password: Joi.string().trim().required(),
-    username: Joi.string().trim().max(10).required()
+    username: Joi.string().trim().max(10).required(),
+    role: Joi.string().valid('owner','admin','guest').default('owner')
 })
 
 export default async function register(req:Request, res:Response, next:NextFunction) {
@@ -18,7 +19,6 @@ export default async function register(req:Request, res:Response, next:NextFunct
         const response = await registerUser(user);
         jsonS(res, response?.message || "User registered", {});
     } catch (e: any) {
-        console.error('e---',e)
         jsonErr(res,e.message, null);
     }
 }

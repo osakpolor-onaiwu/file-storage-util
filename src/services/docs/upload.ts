@@ -20,13 +20,13 @@ const spec = joi.object({
 
 
 export async function upload(data: any) {
+    console.log(data);
     let file_extension = null,
     file_name: string = '',
     file = null;
     
     try {
         const params = validateSchema(spec, data);
- 
         if((!params.url && !params.file && !params.raw_data)
         || (params.url && params.raw_data)
         ) throw new Error('please provide either a url, raw_data or a file, but not more than one at a time.');

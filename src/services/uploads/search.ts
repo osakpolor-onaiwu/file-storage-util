@@ -18,8 +18,7 @@ const spec = joi.object({
     id: joi.string()
 })
 
-export async function upload(data: any) {
-   console.log(data)
+export async function search(data: any) {
     try {
         const params = validateSchema(spec, data);
         const paramsclone = { ...params };
@@ -75,7 +74,6 @@ export async function upload(data: any) {
         }
 
     } catch (error: any) {
-        console.log(error);
         Logger.errorX([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERRROR');
         throwcustomError(error.message);
     }

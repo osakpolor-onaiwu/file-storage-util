@@ -22,7 +22,6 @@ export async function deletes(data: any) {
          DownloadModel,
          'one'
          )
-      console.log('item---',item);
       if(!item) throw new Error('Item not found or already deleted.');
       const is_deleted = await deleteDownload({ _id: params.id, accountid: params.account_id},DownloadModel)
       if(is_deleted) await s3Delete({filename:item.key});
@@ -33,7 +32,6 @@ export async function deletes(data: any) {
         }
 
     } catch (error: any) {
-        console.log('err---',error);
         if(error.message.includes('Cast'))error.message = 'Please pass a valid id.';
         Logger.errorX([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERRROR');
         throwcustomError(error.message);

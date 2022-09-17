@@ -5,7 +5,7 @@ import throwcustomError from '../../utils/customerror'
 
 export async function registerUser(user: User) {
     try {
-        const user_exists = await findUser({email: user.email as string, username: user.username as string});
+        const user_exists = await findUser({email: user.email as string, username: user.username as string, role: user.role as string});
 
         if (user_exists) throw new Error('user with this email or username exists already');
         const save_result = await saveUser(user);
@@ -19,11 +19,11 @@ export async function registerUser(user: User) {
           throw new Error("Could not register user");
         }   
     } catch (error: any) {
-    
+      console.log(error)
         throwcustomError(error.message);
     }
 }
 
-export async function authenticate(user: User) {
+// export async function authenticate(user: User) {
     
-}
+// }

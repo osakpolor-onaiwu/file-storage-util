@@ -8,6 +8,7 @@ export interface User extends Pick<Document, "_id"> {
   username?: string;
   blacklisted?: boolean;
   plan_type?: string;
+  role?: string;
 };
 
 const UserSchema: Schema<User> = new Schema(
@@ -26,6 +27,10 @@ const UserSchema: Schema<User> = new Schema(
       required: true,
     },
     password: {
+      type: String,
+      required: true,
+    },
+    role:{
       type: String,
       required: true,
     },
