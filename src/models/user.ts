@@ -7,7 +7,6 @@ export interface User extends Pick<Document, "_id"> {
   hash_password?: string;
   username?: string;
   blacklisted?: boolean;
-  plan_type?: string;
   role?: string;
 };
 

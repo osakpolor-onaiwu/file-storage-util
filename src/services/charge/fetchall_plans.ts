@@ -2,12 +2,11 @@ import { validateSchema } from '../../utils/validatespec';
 import throwcustomError from '../../utils/customerror'
 import joi from 'joi';
 import Logger from '../../utils/Logger'
-import DownloadModel from '../../models/download';
-import { saveDownload } from '../../dal/download';
+import PlanModel from '../../models/plan';
+import { findAllPlans} from '../../dal/plan';
 
 
 const spec = joi.object({
-    // account_id: joi.string().trim(),
     plan_name:joi.string(),
     duration: joi.object(),
     amount: joi.number(),
@@ -15,12 +14,14 @@ const spec = joi.object({
     meta: joi.object(),
 })
 
-
 export async function getplan(data: any) {
-    
     try {
-        const params = validateSchema(spec, data);
-        
+        const findPlans = await findAllPlans({},PlanModel,'all');
+       
+        return {
+            message: "plans fetched",
+            data:findPlans
+        };
     } catch (error: any) {        
         throwcustomError(error.message);
     }

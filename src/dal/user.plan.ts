@@ -1,19 +1,20 @@
-import PlanModel, { AllPlans} from '../models/plan';
+import UserPlanModel, {UserPlan} from '../models/user.plan';
 import { Document } from 'mongoose';
 import { SearchType, optConfig} from '../types/db_search_types'
 
-export async function saveAllPlans(data: AllPlans, model: typeof PlanModel): Promise<Document> {
-    const new_Plans = new model(data);
-    return new_Plans.save();
+
+export async function saveUserPlans(data: UserPlan, model: typeof UserPlanModel): Promise<Document> {
+    const new_UserPlan = new model(data);
+    return new_UserPlan.save();
 }
 
-export async function findAllPlans(
+export async function findUserPlans(
     data: object,
-    model: typeof PlanModel,
+    model: typeof UserPlanModel,
     searchType: string,
     projection?: string | string[] | { [key: string]: number },
     options?: optConfig,
-): Promise<AllPlans> {
+): Promise<UserPlan> {
     let result: any = {};
     if (searchType === SearchType.ONE) {
         result = await model
@@ -32,15 +33,6 @@ export async function findAllPlans(
     return result;
 }
 
-export async function updateAllPlans(filter: object, data: AllPlans, model: typeof PlanModel): Promise<any> {
+export async function updateUserPlans(filter: object, data: UserPlan, model: typeof UserPlanModel): Promise<any> {
     return await model.findOneAndUpdate(filter, data, { new: true });
-}
-
-export async function deleteAllPlans(data: object, model: typeof PlanModel): Promise<any> {
-    return await model.findOneAndDelete(data);
-}
-
-
-export async function countDocument(data: object, model: any) {
-    return await model.where(data).countDocuments();
 }

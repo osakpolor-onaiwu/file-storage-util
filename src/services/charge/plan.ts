@@ -2,8 +2,8 @@ import { validateSchema } from '../../utils/validatespec';
 import throwcustomError from '../../utils/customerror'
 import joi from 'joi';
 import Logger from '../../utils/Logger'
-import UserPlanModel from '../../models/plan';
-import { saveUserPlan } from '../../dal/plan';
+import PlanModel from '../../models/plan';
+import { saveAllPlans } from '../../dal/plan';
 // import UserModel from '../../models/user';
 import { find as findUser } from '../../dal/user';
 
@@ -26,13 +26,13 @@ export async function create(data: any) {
         const User_role = await findUser({ _id: params.account_id })
         const { plan_duration, plan_name, no_of_conversion, no_of_uploads,payment_plan, plan_amount, plan_currency, meta } = params;
         if (User_role?.role !== 'admin') throw new Error('only admin can create plans');
-        const created_plan = await saveUserPlan({
+        const created_plan = await saveAllPlans({
             plan_duration, plan_name, 
             no_of_conversion, no_of_uploads, 
             plan_amount, plan_currency, meta,
             payment_plan
         },
-            UserPlanModel)
+            PlanModel)
      
         return {
             message: "plan created",

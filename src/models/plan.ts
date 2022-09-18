@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
-export interface UserPlan extends Pick<Document, '_id'> {
+export interface AllPlans extends Pick<Document, '_id'> {
   plan_duration:string;
   plan_name: string;
   no_of_uploads:number;
@@ -12,7 +12,7 @@ export interface UserPlan extends Pick<Document, '_id'> {
   payment_plan?:string;
 }
 
-const PlanSchema: Schema<UserPlan> = new Schema(
+const PlanSchema: Schema<AllPlans> = new Schema(
   {
     plan_duration:{
         type:String,
@@ -50,6 +50,6 @@ const PlanSchema: Schema<UserPlan> = new Schema(
   { timestamps: true },
 );
 
-const UserPlanModel = mongoose.model('UserPlan', PlanSchema);
+const PlanModel = mongoose.model('AllPlans', PlanSchema);
 
-export default UserPlanModel;
+export default PlanModel;
