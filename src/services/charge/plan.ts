@@ -6,6 +6,7 @@ import PlanModel from '../../models/plan';
 import { saveAllPlans } from '../../dal/plan';
 // import UserModel from '../../models/user';
 import { find as findUser } from '../../dal/user';
+import { service_return } from '../../interface/service_response'
 
 
 const spec = joi.object({
@@ -34,10 +35,11 @@ export async function create(data: any) {
         },
             PlanModel)
      
-        return {
+        const res : service_return = {
             message: "plan created",
             data: created_plan
         }
+        return res
     } catch (error: any) {
         throwcustomError(error.message);
     }

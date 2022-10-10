@@ -10,6 +10,7 @@ import { saveDownload } from '../../dal/download';
 import csvtojson from "csvtojson";
 import jsonexport from "jsonexport";
 import Logger from '../../utils/Logger';
+import { service_return } from '../../interface/service_response';
 
 const spec = joi.object({
     url: joi.string().uri(),
@@ -18,6 +19,7 @@ const spec = joi.object({
     name: joi.string().trim().required().error(new Error('Please provide a name')),
     from: joi.any().valid('json', 'csv').required(),
     to: joi.any().valid('json', 'csv').required(),
+    file_description:joi.string().trim().optional(),
     account_id: joi.string().trim().required(),
     options: joi.object({
         rowDelimiter: joi.string().trim(), // Change the file row delimiter, Defaults to , (cvs format). Use \t for xls format. Use ; for (windows excel .csv format).
@@ -154,7 +156,7 @@ export async function convert(data: any) {
             saveDownload({
                 file: params.name,
                 key:file_name,
-                url: link,
+                url: String(link),
                 accountid: params.account_id,
                 type:'document conversion'
             },
@@ -163,7 +165,7 @@ export async function convert(data: any) {
             throw new Error('error uploading data');
         })
 
-        return {
+        const res: service_return = {
             message: "conversion successful",
             data:{
                file_name: params.name,
@@ -171,6 +173,8 @@ export async function convert(data: any) {
                location:file_url
             }
         }
+
+        return res;
 
     } catch (error: any) {
         Logger.errorX([error, error.stack, new Date().toJSON()], 'DOC-CONVERSION-ERROR');

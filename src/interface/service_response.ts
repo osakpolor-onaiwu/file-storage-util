@@ -5,3 +5,8 @@ export interface service_response{
     account_id: string;
     type: string;
 }
+
+export interface service_return{
+    data: any;
+    message: string;
+}

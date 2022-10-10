@@ -17,6 +17,7 @@ const DownloadSchema: Schema<Download> = new Schema(
     accountid: {
       type: String,
       required: false,
+      index:true,
     },
     file: {
       type: String,
@@ -29,11 +30,13 @@ const DownloadSchema: Schema<Download> = new Schema(
     type: {
       type: String,
       required: false,
+      index:true,
     }
   },
   { timestamps: true },
 );
 
+DownloadSchema.index({ account_id: 1, file: 1 }, { unique: true })
 const DownloadModel = mongoose.model('Download', DownloadSchema, 'download');
 
 export default DownloadModel;

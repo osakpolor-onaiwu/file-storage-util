@@ -7,6 +7,9 @@ import s3 from '../../utils/s3';
 import Logger from '../../utils/Logger'
 import DownloadModel from '../../models/download';
 import { saveDownload } from '../../dal/download';
+import QueueModel, { Queue } from '../../models/queue';
+import {saveQueueItem} from '../../worker/dal';
+import { service_return } from '../../interface/service_response'
 
 
 const spec = joi.object({
@@ -15,12 +18,11 @@ const spec = joi.object({
     type: joi.any().valid('json', 'csv', 'pdf').required(),
     name: joi.string().trim().required().error(new Error('Please provide a name')),
     file: joi.object(),
+    file_description:joi.string().trim().optional(),
     account_id: joi.string().trim().required(),
 })
 
-
 export async function upload(data: any) {
-    console.log(data);
     let file_extension = null,
     file_name: string = '',
     file = null;
@@ -91,27 +93,32 @@ export async function upload(data: any) {
             }
         }
   
-        s3({ data: file, filename: file_name })
-        .then(link => {
-            saveDownload({
+            const response = await saveDownload({
                 file: params.name,
                 key:file_name,
-                url: link,
+                url: 'N/A',
                 accountid: params.account_id,
                 type:'document upload'
-            },
-                DownloadModel)
-        }).catch(e => {
-            throw new Error(e);
-        })
+            }, DownloadModel)
 
-        return {
-            message: "upload successful",
-            data: file_name,
+            saveQueueItem({
+                data:{ file, filename: file_name, download_id: response._id},
+                run_on:new Date(),
+                status:'new',
+                job:'uploaddoc'
+
+            },QueueModel)
+
+        const res: service_return ={
+            message: "upload in progress",
+            data: response,
         }
+
+        return res;
     } catch (error: any) {
         if(error?.code ==='ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        if(error.message.includes('duplicate key')) error.message = 'you already have a file with this name';
+        Logger.errorX([error, error.stack, new Date().toJSON()], 'DOC-UPLOAD-ERROR');
         
         throwcustomError(error.message);
     }

@@ -6,6 +6,7 @@ import PlanModel from '../../models/plan';
 import { findAllPlans } from '../../dal/plan';
 import UserPlanModel from '../../models/user.plan';
 import { saveUserPlans,findUserPlans } from '../../dal/user.plan';
+import { service_return } from '../../interface/service_response'
 
 const spec = joi.object({
     account_id: joi.string().trim().required(),
@@ -26,10 +27,12 @@ export async function chooseUserPlan(data: any) {
             plan_id: params.plan_id,
             user_id: params.account_id
         }, UserPlanModel)
-        return {
+        
+        const res : service_return = {
             message: "plan choosed",
             data: plan_choosed
-        };
+        }
+        return res
     } catch (error: any) {
         if(error.message.includes('Cast'))error.message = 'Please pass a valid plan id.';
         throwcustomError(error.message);

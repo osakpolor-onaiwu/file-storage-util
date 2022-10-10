@@ -8,7 +8,7 @@ import { saveDownload } from '../../dal/download';
 import s3 from '../../utils/s3';
 import Jimp from 'jimp';
 import Logger from '../../utils/Logger';
-
+import { service_return } from '../../interface/service_response'
 
 const spec = joi.object({
     url: joi.string().uri(),
@@ -16,6 +16,7 @@ const spec = joi.object({
     from: joi.any().valid('jpeg', 'png','jpg').required(),
     to: joi.any().valid('jpeg', 'png','jpg').required(),
     file: joi.object(),
+    file_description:joi.string().trim().optional(),
     account_id: joi.string().trim().required(),
 })
 
@@ -96,7 +97,7 @@ export async function convert(data: any) {
             saveDownload({
                 file: params.name,
                 key:file_name,
-                url: link,
+                url: String(link),
                 accountid: params.account_id,
                 type:'image conversion'
             },
@@ -105,10 +106,11 @@ export async function convert(data: any) {
             throw new Error('error uploading data');
         })
         
-        return {
+        const res: service_return= {
             message: "conversion successful",
             data: file_name
         }
+        return res
     } catch (error:any) {
         // console.log('CONV-ERR---',error);
         Logger.errorX([error, error.stack, new Date().toJSON()], 'IMG-CONVERSION-ERR');

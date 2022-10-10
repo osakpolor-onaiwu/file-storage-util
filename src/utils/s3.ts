@@ -11,7 +11,11 @@ const spec = joi.object({
   filename: joi.string(),
 })
 
-export default async function s3(data: object,flag?:string) {
+interface Resp{
+  message: string,data: any
+}
+
+export default async function s3(data: object,flag?:string):Promise<Resp> {
 
   try {
     const params = validateSchema(spec,data);
@@ -32,18 +36,26 @@ export default async function s3(data: object,flag?:string) {
       ACL:'public-read',
     };
     const upload = s3.putObject(payload).promise();
+   
     //try switching to async
-    const link = upload
+    const link = await upload
       .then(() => {
         return s3BASE + params.filename;
       })
       .catch((err: object) => {
         throw err;
       });
-
-    return link;
+    console.log('link--', link);
+    return {
+      message:'success',
+      data:link
+    };
   } catch (error:any) {
+    console.log('S3 error--',error)
     Logger.errorX([error, error.stack, new Date().toJSON()], 's3_error');
-    throw error;
+    return {
+      message:'error',
+      data:error.message
+    };
   }
 }

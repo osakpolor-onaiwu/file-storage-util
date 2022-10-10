@@ -1,19 +1,19 @@
-import DownloadModel, { Download } from '../models/download';
+import TransactionModel, { Transaction } from '../models/transactions';
 import { Document } from 'mongoose';
 import { SearchType, optConfig} from '../types/db_search_types'
 
-export async function saveDownload(data: Download, model: typeof DownloadModel): Promise<Document> {
-    const new_download = new model(data);
-    return new_download.save();
+export async function saveTransaction(data: Transaction, model: typeof TransactionModel): Promise<Document> {
+    const new_transaction = new model(data);
+    return new_transaction.save();
 }
 
-export async function findDownload(
+export async function findTransaction(
     data: object,
-    model: typeof DownloadModel,
+    model: typeof TransactionModel,
     searchType: string,
     projection?: string | string[] | { [key: string]: number },
     options?: optConfig,
-): Promise<Download> {
+): Promise<Transaction> {
     let result: any = {};
     if (searchType === SearchType.ONE) {
         result = await model
@@ -32,11 +32,11 @@ export async function findDownload(
     return result;
 }
 
-export async function updateDownload(filter: object, data: any, model: typeof DownloadModel): Promise<any> {
+export async function updateTransaction(filter: object, data: any, model: typeof TransactionModel): Promise<any> {
     return await model.findOneAndUpdate(filter, data, { new: true });
 }
 
-export async function deleteDownload(data: object, model: typeof DownloadModel): Promise<any> {
+export async function deleteTransaction(data: object, model: typeof TransactionModel): Promise<any> {
     return await model.findOneAndDelete(data);
 }
 
