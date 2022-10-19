@@ -54,8 +54,10 @@ export async function charge(data: any) {
         }, PlanModel, 'one');
 
         if (!findPlanDetails) throw new Error('Plan details not found');
-        params.amount = String(findPlanDetails.plan_amount);
         
+        params.amount = String(findPlanDetails.plan_amount);
+        params.plan_id = findPlanDetails.flw_plan_id;
+
         const link = await flw_charge(params);
         params.payment_link = link;
         

@@ -118,7 +118,7 @@ export async function upload(data: any) {
     } catch (error: any) {
         if(error?.code ==='ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
         if(error.message.includes('duplicate key')) error.message = 'you already have a file with this name';
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'DOC-UPLOAD-ERROR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'DOC-UPLOAD-ERROR');
         
         throwcustomError(error.message);
     }

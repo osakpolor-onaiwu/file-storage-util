@@ -90,7 +90,7 @@ export async function upload(data: any) {
         //for when the url does not contain any thing. if a url is passed
         if (error?.code === 'ERR_BAD_REQUEST') error.message = 'File not found. ensure the url exist';
         if(error.message.includes('duplicate key')) error.message = 'you already have a file with this name';
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
         throwcustomError(error.message);
     }
 }

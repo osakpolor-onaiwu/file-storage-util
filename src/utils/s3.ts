@@ -52,7 +52,7 @@ export default async function s3(data: object,flag?:string):Promise<Resp> {
     };
   } catch (error:any) {
     console.log('S3 error--',error)
-    Logger.errorX([error, error.stack, new Date().toJSON()], 's3_error');
+    Logger.error([error, error.stack, new Date().toJSON()], 's3_error');
     return {
       message:'error',
       data:error.message

@@ -177,7 +177,7 @@ export async function convert(data: any) {
         return res;
 
     } catch (error: any) {
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'DOC-CONVERSION-ERROR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'DOC-CONVERSION-ERROR');
         throwcustomError(error.message);
     }
 }

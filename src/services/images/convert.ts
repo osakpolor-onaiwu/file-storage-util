@@ -113,7 +113,7 @@ export async function convert(data: any) {
         return res
     } catch (error:any) {
         // console.log('CONV-ERR---',error);
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'IMG-CONVERSION-ERR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'IMG-CONVERSION-ERR');
         throwcustomError(error.message);
     }
 }

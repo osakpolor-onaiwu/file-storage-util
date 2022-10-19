@@ -54,7 +54,7 @@ app.use(function(req:any, res:any, next:any) {
 // error handler
 app.use(function(err:any, req:any, res:any, next:any) {
   const mliteUniqueKey = "File-Storage-util" + String(Date.now() * Math.random()).split(".")[0];
-  Logger.errorX({
+  Logger.error({
     stack: err && err.stack,
     message: (err && err.message) || err,
     timestamp: Date.now()

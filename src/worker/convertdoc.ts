@@ -63,7 +63,7 @@ const upload = async () => {
         
     } catch (error: any) {
         console.log('upload worker error---',error);
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
         if (parentPort) parentPort.postMessage("done");
         else process.exit(0);
     }

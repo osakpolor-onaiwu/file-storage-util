@@ -22,7 +22,9 @@ export async function chooseUserPlan(data: any) {
             _id: params.plan_id,
         }, PlanModel, 'one');
 
-        if (!findPlans) throw new Error('No plan found');
+        if (!findPlans) throw new Error('Plan does not exist');
+
+    
         const plan_choosed = await saveUserPlans({
             plan_id: params.plan_id,
             user_id: params.account_id
@@ -52,7 +54,7 @@ export async function fetchUserPlan(data: any) {
             user_id: params.account_id
         }, UserPlanModel,'one');
      
-        if(!findUserPlan) throw new Error('User plan not found');
+        if(!findUserPlan) throw new Error('User does not have any plan selected');
 
         const findPlanDetails = await findAllPlans({
             _id: findUserPlan.plan_id,

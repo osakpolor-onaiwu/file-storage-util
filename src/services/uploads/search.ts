@@ -79,7 +79,7 @@ export async function search(data: any) {
 
   } catch (error: any) {
     if (error.message.includes('Cast')) error.message = 'Please pass a valid id.';
-    Logger.errorX([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERROR');
+    Logger.error([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERROR');
     throwcustomError(error.message);
   }
 }

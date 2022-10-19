@@ -36,7 +36,7 @@ export async function deletes(data: any) {
 
     } catch (error: any) {
         if (error.message.includes('Cast')) error.message = 'Please pass a valid id.';
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERRROR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'FETCH-UPLOADS-ERRROR');
         throwcustomError(error.message);
     }
 }

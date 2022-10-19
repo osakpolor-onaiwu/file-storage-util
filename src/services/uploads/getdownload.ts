@@ -30,7 +30,7 @@ export async function getdownload(data: any) {
         return res
     } catch (error: any) {
        if(error.message.includes('Cast'))error.message = 'Please pass a valid id.';
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'FETCH-DOWNLOAD-ERROR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'FETCH-DOWNLOAD-ERROR');
         throwcustomError(error.message);
     }
 }

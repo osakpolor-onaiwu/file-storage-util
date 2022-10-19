@@ -75,7 +75,7 @@ const jimp = async (file: string, file_name: string) => {
         process.exit(0);
     } catch (error: any) {
         console.log('upload worker error---', error);
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
         process.exit(0);
     }
 

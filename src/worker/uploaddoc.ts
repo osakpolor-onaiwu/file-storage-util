@@ -56,7 +56,7 @@ import { parentPort } from 'worker_threads';
         process.exit(0);
     } catch (error: any) {
         console.log('upload worker error---', error);
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'error uploading data');
+        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
         process.exit(0);
     }
 
