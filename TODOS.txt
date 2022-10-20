@@ -1,0 +1,8 @@
+#complete email verification
+
+#complete logger
+
+#do check on how many conversion or upload done already to ensure it has
+not exceed the plan limit before doing conversion and upload.
+
+#move file conversion and upload to workers
