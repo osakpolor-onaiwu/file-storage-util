@@ -34,7 +34,7 @@ export async function flw_charge(data: any) {
         }
         return res
     } catch (error: any) {        
-        Logger.error(error.message,{service:'flw_charge-error'})
+        Logger.error(error.message, { service: 'flw_charge-error' });
         throwcustomError(error.message);
     }
 }

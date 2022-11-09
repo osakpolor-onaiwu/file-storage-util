@@ -11,6 +11,8 @@ import csvtojson from "csvtojson";
 import jsonexport from "jsonexport";
 import Logger from '../../utils/Logger';
 import { service_return } from '../../interface/service_response';
+import QueueModel, { Queue } from '../../models/queue';
+import {saveQueueItem} from '../../worker/dal';
 
 const spec = joi.object({
     url: joi.string().uri(),
@@ -34,10 +36,12 @@ const spec = joi.object({
 
 
 export async function convert(data: any) {
+
     let file_extension = null,
         file_name: string = '';
-    let converted_to;
-    let parse_data = null;
+    let converted;
+    let data_to_convert;
+    let parsed_data = null;
     let file;
     let flag;
 
@@ -80,20 +84,17 @@ export async function convert(data: any) {
             if (file_extension === '.csv' && params.from === 'csv') {
                 file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 flag='json';
-                
-                converted_to = await csvtojson().fromString(get_file.data);
-                if (!converted_to) throw new Error('error converting url from csv to json');
-
+    
+                data_to_convert = get_file.data;
             } else {
                 try {
-                    parse_data = JSON.parse(JSON.stringify(get_file.data));;
+                    parsed_data = JSON.parse(JSON.stringify(get_file.data));
                 } catch (error) {
                     throw new Error('data could not be parsed to an object');
                 }
 
                 file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
-                converted_to = await jsonexport(parse_data, options)
-                if (!converted_to) throw new Error('error converting raw data from json to csv');
+                data_to_convert = parsed_data;
             }
         }
 
@@ -102,19 +103,17 @@ export async function convert(data: any) {
                 flag = 'json';
                 if(params.raw_data.includes('{') || params.raw_data.includes('}')) throw new Error('please provide a valid csv for the raw data')
                 file_name = file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
-                converted_to = await csvtojson().fromString(params.raw_data);
-               
-                if (!converted_to) throw new Error('error converting raw data from csv to json');
+                
+                data_to_convert = params.raw_data;
             } else {
                 file_name = file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
                 try {
-                    parse_data = JSON.parse(String(params.raw_data));
+                    parsed_data = JSON.parse(String(params.raw_data));
                 } catch (error) {
                     throw new Error('please pass a valid json');
                 }
                
-                converted_to = await jsonexport(parse_data, options)
-                if (!converted_to) throw new Error('error converting raw data from json to csv');
+                data_to_convert = parsed_data;
             }
         }
 
@@ -128,50 +127,42 @@ export async function convert(data: any) {
             if (file_extension === '.csv' && params.from === 'csv' && params.to === 'json') {
                 flag = 'json';
                 file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
-
-                converted_to = await csvtojson().fromString(get_file.data);
-                if (!converted_to) throw new Error('error converting url from csv to json');
-           
+                data_to_convert = get_file.data;
             } else {
               
                 try {
-                    parse_data = JSON.parse(JSON.stringify(get_file.data));
+                    parsed_data = JSON.parse(JSON.stringify(get_file.data));
                 } catch (error) {
                     throw new Error('data could not be parsed to an object');
                 }
                 
                 file_name = `${params.name + '_' + Date.now() + '_' + params.account_id}.${params.to}`;
-                converted_to = await jsonexport(parse_data, options);
-                if (!converted_to) throw new Error('error converting raw data from json to csv');
-          
+                data_to_convert = parsed_data;
             }
 
             await s3Delete({ filename: params.file?.key });
         }
   
-        let file_url = null;
-        s3({ data: converted_to, filename: file_name },flag)
-        .then(link => {
-            file_url = link;
-            saveDownload({
-                file: params.name,
-                key:file_name,
-                url: String(link),
-                accountid: params.account_id,
-                type:'document conversion'
-            },
-                DownloadModel)
-        }).catch(e => {
-            throw new Error('error uploading data');
-        })
+        const response = await saveDownload({
+            file: params.name,
+            key:file_name,
+            url: 'N/A',
+            accountid: params.account_id,
+            type:'document conversion'
+        },
+            DownloadModel)
 
+      
+        saveQueueItem({
+            data:{ file_extension, options, from:params.from, to:params.to, data_to_convert, filename:file_name, download_id: response._id},
+            run_on:new Date(),
+            status:'new',
+            job:'convertdoc'
+
+        },QueueModel)
         const res: service_return = {
-            message: "conversion successful",
-            data:{
-               file_name: params.name,
-               key:converted_to,
-               location:file_url
-            }
+            message: "conversion in progress",
+            data:response
         }
 
         return res;

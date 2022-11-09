@@ -9,7 +9,7 @@ import PlanModel from '../../models/plan';
 import { findAllPlans } from '../../dal/plan';
 import { saveTransaction } from '../../dal/transaction'
 import { find } from '../../dal/user';
-import { randomBytes } from 'crypto'
+import { randomBytes } from 'crypto';
 import { service_return } from '../../interface/service_response'
 import { flw_charge } from './flw_charge'
 const spec = joi.object({

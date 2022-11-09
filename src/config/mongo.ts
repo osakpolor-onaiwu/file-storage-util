@@ -29,7 +29,7 @@ export const initiateMongodb = async () => {
 
   mongoose.connection.on('connected', () => {
     console.log(`Mongoose connection to ${dbConfig.mongoUri} successful`);
-    Logger.info(`Mongoose connection to ${dbConfig.mongoUri} successful`);
+    // Logger.info(`Mongoose connection to ${dbConfig.mongoUri} successful`);
   });
 
   mongoose.connection.on('error', (err) => {

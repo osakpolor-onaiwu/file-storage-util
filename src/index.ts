@@ -131,7 +131,7 @@ process.on('SIGINT', () => {
 });
 
 process.on('unhandledRejection', (reason) => {
-  // console.log('reason---', reason);
+  console.log('reason---', reason);
   Logger.info('unhandledRejection error---', new Date().toJSON());
   // throw reason;
 });

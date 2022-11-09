@@ -74,8 +74,8 @@ const jimp = async (file: string, file_name: string) => {
         // return true;
         process.exit(0);
     } catch (error: any) {
-        console.log('upload worker error---', error);
-        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
+        console.log('upload img error---', error);
+        if(error.message !== 'no queue item found') Logger.error([error, error.stack, new Date().toJSON()], 'error converting data');
         process.exit(0);
     }
 

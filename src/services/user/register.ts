@@ -25,12 +25,12 @@ export async function registerUser(data: User) {
 
         if (save_result) {
 
-          await notifier({
-            user_email: user.email,
-            user_name: user.name,
-            subject: 'Email verification',
-            link: `${process.env.SITE_URL}/${save_result._id}`
-          });
+          // await notifier({
+          //   user_email: user.email,
+          //   user_name: user.name,
+          //   subject: 'Email verification',
+          //   link: `${process.env.SITE_URL}/${save_result._id}`
+          // });
 
           return {
               message: "Registration successful",
@@ -40,7 +40,6 @@ export async function registerUser(data: User) {
           throw new Error("Could not register user");
         }   
     } catch (error: any) {
-      console.log(error)
         throwcustomError(error.message);
     }
 }
