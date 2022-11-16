@@ -1,5 +1,13 @@
 import { ObjectId } from 'mongodb';
 
+
+export interface Options{
+    rowDelimiter?: string,
+    pdfFormat?:any,
+    includeHeaders?:boolean,
+    fullPage?:boolean,
+    quality?:number
+}
 export interface S3upload {
     file: string;
     filename: string;
@@ -7,5 +15,5 @@ export interface S3upload {
     from?: string;
     to?: string;
     data_to_convert?:any;
-    options?: object;
+    options?: Options;
 }

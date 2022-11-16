@@ -7,6 +7,7 @@ import { findQueueItem, updateQueueItem } from './dal';
 import { S3upload } from './interface';
 import { initiateMongodb } from '../config/mongo';
 import csvtojson from "csvtojson";
+import puppeteer from 'puppeteer';
 import jsonexport from "jsonexport";
 
 (async () => {
@@ -42,7 +43,25 @@ import jsonexport from "jsonexport";
                 converted = await csvtojson().fromString(params.data_to_convert);
                 if (!converted) throw new Error('error converting data from csv to json');
         
-            } else {
+            } else if (params.from === 'html'){
+                const browser = await puppeteer.launch();
+                const page = await browser.newPage();
+                await page.goto(params.data_to_convert);
+                if(params.to === 'pdf'){
+                    //returns a buffer of the page send the buffer to s3
+                    converted = await page.pdf({ format: params?.options?.pdfFormat || 'A4' });
+                }else{
+                    converted = await page.screenshot({
+                        type:'jpeg',
+                        quality:params.options?.quality,
+                        fullPage:params.options?.fullPage,
+                    });
+                }
+               
+                if(!converted) throw new Error('error converting data from html to pdf');
+		        await browser.close();
+            }
+            else {
                 flag = 'csv';
                 converted = await jsonexport(params.data_to_convert, params.options);
                 if (!converted) throw new Error('error converting data from json to csv');
@@ -64,7 +83,6 @@ import jsonexport from "jsonexport";
         // return true;
         process.exit(0);
     } catch (error: any) {
-        console.log('convert doc error---', error);
         if(error.message !== 'no queue item found') Logger.error([error, error.stack, new Date().toJSON()], 'error converting data');
         process.exit(0);
     }

@@ -48,7 +48,6 @@ export async function convert(data: any) {
             if ((file_extension === '.jpeg' || file_extension === '.jpg') && (params.from === 'jpeg' || params.from === 'jpg')) {
                 file_name = `${Date.now()+params.name}.png`; 
                 data_to_convert = params.url;        
-                // converted_to = await jimp(params.url, file_name);
               
             } else {
                 if(params.from === 'jpg'){
@@ -57,7 +56,6 @@ export async function convert(data: any) {
                     file_name = `${Date.now()+params.name}.jpeg`;
                 }
                 data_to_convert = params.url;    
-                // converted_to = await jimp(params.url, file_name);
             }
         }
 
@@ -68,11 +66,9 @@ export async function convert(data: any) {
             if ( (params.from === 'jpeg' || params.from === 'jpg') && params.to === 'png') {
                 file_name = `${Date.now()+params.name || key}.png`;
                 data_to_convert = params.file.location;
-                // converted_to = await jimp(params.file.location, file_name)
             } else {
                 file_name = `${Date.now()+params.name || key}.jpeg`;
                 data_to_convert = params.file.location;
-                // converted_to = await jimp(params.file.location, file_name)
             }
 
             await s3Delete({ filename: key });
@@ -87,20 +83,6 @@ export async function convert(data: any) {
             type:'image conversion'
         },
             DownloadModel)
-
-        // s3({ data: converted_to, filename: file_name })
-        // .then(link => {
-        //     saveDownload({
-        //         file: params.name,
-        //         key:file_name,
-        //         url: String(link),
-        //         accountid: params.account_id,
-        //         type:'image conversion'
-        //     },
-        //         DownloadModel)
-        // }).catch(e => {
-        //     throw new Error('error uploading data');
-        // })
         
         saveQueueItem({
             data:{ file_extension, from:params.from, to:params.to, data_to_convert, filename:file_name, download_id: response._id},

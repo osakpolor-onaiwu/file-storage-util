@@ -41,7 +41,7 @@ const bree = new Bree({
 });
 
 //to start bree
-(async()=>await bree.start())()
+(async()=>await bree.start())();
 
 
 app.use(router);
