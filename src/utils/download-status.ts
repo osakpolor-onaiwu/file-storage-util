@@ -50,7 +50,7 @@ export async function download(data: Download) {
       data: resp
     }
   } catch (error: any) {
-    Logger.errorX(
+    Logger.error(
       [error && error.message, error && error.stack, 'FETCH-DOWNLOAD-ERROR'],
       'FETCH-DOWNLOAD-ERROR',
     );

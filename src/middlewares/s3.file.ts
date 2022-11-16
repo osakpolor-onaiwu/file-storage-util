@@ -2,9 +2,9 @@ import AWS from 'aws-sdk';
 import handlevalidation from '../utils/handlevalidation';
 const accessKeyId = process.env.AWS_ACCESS_KEY;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
-const s3BASE = process.env.AWS_S3BASE;
 import multer from 'multer';
 import multerS3 from 'multer-s3';
+import path from 'path';
 import { jsonErr } from '../utils/responses';
 
 
@@ -36,7 +36,7 @@ const upload = multer({
       if (validate.err) {
         cb(new Error(validate.err));
       }
-      cb(null, `${Date.now()}-${file.originalname}`);
+      cb(null, `${req.body.name + '_' + Date.now()  + '_' + String(req?.query?.user_id)}${path.extname(file?.originalname.toLowerCase())}`.split(' ').join(''));
     }
   })
 })
@@ -47,7 +47,6 @@ export default function fileupload(req: any, res: any, next: any) {
 
   uploadfile(req, res, function (err) {
     if (err) {
-      // console.log(err);
       if (`${err?.message}`?.includes('Inaccessible host')) err.message = 'error uploading file to host'
       jsonErr(res, err.message, null);
     } else {

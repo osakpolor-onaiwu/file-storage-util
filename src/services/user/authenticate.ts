@@ -14,7 +14,8 @@ export async function authenticateUser(data: User, login_info: LoginInfo) {
     try {
         const user = await findUser({email: data.email as string, username: data.username as string});
         if (!user) throw new Error('user does not exist');
-
+        if(!user.is_verified) throw new Error('please verify your email to proceed');
+        
         const result = await bcrypt.compare(data.password as string, user.password as string);
         if (!result) throw new Error("Invalid password");
 

@@ -3,7 +3,7 @@ import { jsonS, jsonErr } from '../../utils/responses';
 
 export default async function (req: any, res: any, next: any) {
     try {
-             if(req?.query?.user_id) req.body.account_id = String(req?.query?.user_id);
+        if(req?.query?.user_id) req.body.account_id = String(req?.query?.user_id);
         if (req.file) req.body.file = req.file;
 
         const uploads: any = await upload(req.body);

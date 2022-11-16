@@ -1,17 +1,28 @@
-import mlite from 'mlite';
-import config from '../config/index';
+import { createLogger, transports, format } from 'winston';
+import 'winston-mongodb';
+import dbConfig from '../config/mongo';
+let logger:any
 
-/**
- * Describes methods required for any custom logger
- */
-export interface MLogger {
-  log(data: any, optional_key?: string, type?: string): any;
-  info(data: any, optional_key?: string): any;
-  warning(data: any, optional_key?: string): any;
-  error(data: any, optional_key?: string): any;
-  errorX(data: any, optional_key?: string): any;
+if(process.env.ENVIRONMENT !== 'local') {
+  logger = createLogger({
+    transports:[
+        new transports.Console({
+          level: 'info',
+          format:format.combine(format.timestamp(),format.json(),format.label())
+        }),
+    ]
+  })
+}else{
+  logger = createLogger({
+    transports:[
+        new transports.MongoDB({
+          level: 'info',
+          options:{...dbConfig.config, useUnifiedTopology:true},
+          db:dbConfig.mongoUri,
+        }),
+    ]
+  })
 }
 
-const Logger: MLogger = mlite(config.mlite_token);
 
-export default Logger;
+export default logger

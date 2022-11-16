@@ -7,13 +7,14 @@ import Logger from './utils/Logger';
 import cors from 'cors';
 import useragent from "express-useragent";
 const isDevEnvironment = process.env.NODE_ENV || 'development';
-
+import JobConfig from './worker';
 const app = express();
 app.use(useragent.express());
 app.use(logger(isDevEnvironment ? 'dev' : 'short'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+const path = require('path');
+const Bree = require('bree');
 app.use(cors(),function (req:any, res:any, next:any) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Content-Type","Accept", "Authorization", "Origin, X-Requested-With");
@@ -21,6 +22,27 @@ app.use(cors(),function (req:any, res:any, next:any) {
   
   next();
 })
+
+//worker
+const bree = new Bree({
+  root: path.join(__dirname, 'worker'),
+  jobs: JobConfig,
+  errorHandler: (error:any, workerMetadata:any) => {
+    // workerMetadata will be populated with extended worker information only if
+    // Bree instance is initialized with parameter `workerMetadata: true`
+    if (workerMetadata.threadId) {
+      console.log(`There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`)
+    } else {
+      console.log(`There was an error while running a worker ${workerMetadata.name}`)
+    }
+
+    console.log('bree error',error);
+  }
+});
+
+//to start bree
+(async()=>await bree.start())();
+
 
 app.use(router);
 
@@ -31,9 +53,9 @@ app.use(function(req:any, res:any, next:any) {
 
 // error handler
 app.use(function(err:any, req:any, res:any, next:any) {
-  // console.log(err, 'APP ERRR')
+  console.log('*****',err);
   const mliteUniqueKey = "File-Storage-util" + String(Date.now() * Math.random()).split(".")[0];
-  Logger.errorX({
+  Logger.error({
     stack: err && err.stack,
     message: (err && err.message) || err,
     timestamp: Date.now()

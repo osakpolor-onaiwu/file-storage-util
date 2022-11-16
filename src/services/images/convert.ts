@@ -5,42 +5,27 @@ import path from 'path';
 import s3Delete from '../../utils/s3.delete';
 import DownloadModel from '../../models/download';
 import { saveDownload } from '../../dal/download';
-import s3 from '../../utils/s3';
-import Jimp from 'jimp';
 import Logger from '../../utils/Logger';
-
+import { service_return } from '../../interface/service_response';
+import QueueModel, { Queue } from '../../models/queue';
+import { saveQueueItem } from '../../worker/dal';
 
 const spec = joi.object({
     url: joi.string().uri(),
-    name: joi.string().trim(),
+    name: joi.string().trim().required().error(new Error('please provide a name')),
     from: joi.any().valid('jpeg', 'png','jpg').required(),
     to: joi.any().valid('jpeg', 'png','jpg').required(),
     file: joi.object(),
+    file_description:joi.string().trim().optional(),
     account_id: joi.string().trim().required(),
 })
 
-const jimp = async (file:string,file_name:string)=>{
-    try {
-        const image = await Jimp.read(file);   
-        file_name = file_name.slice(-3);
 
-        if(file_name.includes('png')){
-            console.log('its got it----')
-            return image.getBufferAsync(Jimp.MIME_PNG);
-        }else{
-            return image.getBufferAsync(Jimp.MIME_JPEG);
-        }
-   
-    } catch (err) {
-        throw (err);
-    }
-}
 
 export async function convert(data: any) {
     let file_extension = null;
-    let converted_to: string | any = null;
     let file_name: string = '';
-
+    let data_to_convert;
 
     try {
         const params = validateSchema(spec, data);
@@ -61,17 +46,16 @@ export async function convert(data: any) {
             }
 
             if ((file_extension === '.jpeg' || file_extension === '.jpg') && (params.from === 'jpeg' || params.from === 'jpg')) {
-                file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.png`;         
-                converted_to = await jimp(params.url, file_name);
+                file_name = `${Date.now()+params.name}.png`; 
+                data_to_convert = params.url;        
               
             } else {
-                if(params.fro === 'jpg'){
-                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpg`;
+                if(params.from === 'jpg'){
+                    file_name = `${Date.now()+params.name}.jpg`;
                 }else{
-                    file_name = `${Date.now()+params.name || Date.now()+'-file-storage'}.jpeg`;
+                    file_name = `${Date.now()+params.name}.jpeg`;
                 }
-                
-                converted_to = await jimp(params.url, file_name);
+                data_to_convert = params.url;    
             }
         }
 
@@ -81,35 +65,41 @@ export async function convert(data: any) {
            
             if ( (params.from === 'jpeg' || params.from === 'jpg') && params.to === 'png') {
                 file_name = `${Date.now()+params.name || key}.png`;
-                converted_to = await jimp(params.file.location, file_name)
+                data_to_convert = params.file.location;
             } else {
                 file_name = `${Date.now()+params.name || key}.jpeg`;
-                converted_to = await jimp(params.file.location, file_name)
+                data_to_convert = params.file.location;
             }
 
-            
             await s3Delete({ filename: key });
         }
 
-        s3({ data: converted_to, filename: file_name })
-        .then(link => {
-            saveDownload({
-                file: file_name,
-                url: link,
-                accountid: params.account_id,
-            },
-                DownloadModel)
-        }).catch(e => {
-            throw new Error('error uploading data');
-        })
+
+        const response = await saveDownload({
+            file: params.name,
+            key:file_name,
+            url: 'N/A',
+            accountid: params.account_id,
+            type:'image conversion'
+        },
+            DownloadModel)
         
-        return {
-            message: "conversion successful",
-            data: file_name
+        saveQueueItem({
+            data:{ file_extension, from:params.from, to:params.to, data_to_convert, filename:file_name, download_id: response._id},
+            run_on:new Date(),
+            status:'new',
+            job:'convertimg'
+
+        },QueueModel)
+
+        const res: service_return= {
+            message: "conversion in progress",
+            data: response
         }
+        return res
     } catch (error:any) {
         // console.log('CONV-ERR---',error);
-        Logger.errorX([error, error.stack, new Date().toJSON()], 'IMG-CONVERSION-ERR');
+        Logger.error([error, error.stack, new Date().toJSON()], 'IMG-CONVERSION-ERR');
         throwcustomError(error.message);
     }
 }

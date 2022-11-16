@@ -26,8 +26,9 @@ const server = http.createServer(app);
 server.on('secureConnection', (socket) => {
   // HTTPS: secureConnection
   // HTTP: connection
-  socket.setTimeout(3 * 60 * 1000); // 3 minutes
+  socket.setTimeout(1 * 50 * 1000); // 35sec
 })
+
 server.on('error', onError);
 server.on('listening', onListening);
 /**
@@ -63,7 +64,7 @@ function onError(error: any) {
     ? 'Pipe ' + port
     : 'Port ' + port;
 
- 
+
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
@@ -107,32 +108,31 @@ mongoose
     server.listen(port, () => {
       console.log(`Server listening on ${port}`);
     })
-  }).catch((err:any) =>{
+  }).catch((err: any) => {
     Logger.info('Mongoose connection disconnected');
     console.log(err)
   })
-  
 
 
-  const closeOpenConnections = (errorOccurred: boolean) => {
-    Logger.info('Shutting down server and open connections', new Date().toJSON());
-    server.close(() => {
-      Logger.info('Server shut down', new Date().toJSON());
-      mongoose.connection.close(() => {
-        Logger.info('Mongoose connection closed', new Date().toJSON());
-        process.exit(errorOccurred ? 1 : 0);
-      });
+
+const closeOpenConnections = (errorOccurred: boolean) => {
+  Logger.info('Shutting down server and open connections', new Date().toJSON());
+  server.close(() => {
+    Logger.info('Server shut down', new Date().toJSON());
+    mongoose.connection.close(() => {
+      Logger.info('Mongoose connection closed', new Date().toJSON());
+      process.exit(errorOccurred ? 1 : 0);
     });
-  };
-
-  process.on('SIGINT', () => {
-    closeOpenConnections(false);
   });
+};
 
-  process.on('unhandledRejection', (reason) => {
-    console.log(reason);
-    Logger.info('unhandledRejection error---', new Date().toJSON());
-    // throw reason;
-  });
+process.on('SIGINT', () => {
+  closeOpenConnections(false);
+});
 
-  
+process.on('unhandledRejection', (reason) => {
+  console.log('reason---', reason);
+  Logger.info('unhandledRejection error---', new Date().toJSON());
+  // throw reason;
+});
+
