@@ -3,7 +3,6 @@ import throwcustomError from '../../utils/customerror'
 import joi from 'joi';
 import path from 'path';
 import axios from "axios";
-import s3 from '../../utils/s3';
 import Logger from '../../utils/Logger'
 import DownloadModel from '../../models/download';
 import { saveDownload } from '../../dal/download';

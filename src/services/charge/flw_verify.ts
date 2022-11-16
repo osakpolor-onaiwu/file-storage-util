@@ -8,7 +8,7 @@ import { service_return } from '../../interface/service_response'
 import Flutterwave from 'flutterwave-node-v3';
 import axios from 'axios';
 
-const flw = new Flutterwave(process.env.FLW_PUBLIC_KEY, process.env.FLW_SECRET_KEY, null);
+// const flw = new Flutterwave(process.env.FLW_PUBLIC_KEY, process.env.FLW_SECRET_KEY, null);
 const spec = joi.object({
     status: joi.string().required(),
     transaction_id: joi.string().required(),

@@ -8,8 +8,16 @@ export default [
         name: 'uploaddoc',
         interval: '1s'
     },
-    // {
-    //     name: 'charge',
-    //     interval: 'at 12:00am',
-    // },
+    {
+        name: 'convertdoc',
+        interval: '1s'
+    },
+    {
+        name: 'convertimg',
+        interval: '1s'
+    },
+    {
+        name: 'checknewmonth',
+        interval: 'at 12:00am',
+    },
 ];

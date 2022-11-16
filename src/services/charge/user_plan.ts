@@ -4,8 +4,10 @@ import joi from 'joi';
 import Logger from '../../utils/Logger'
 import PlanModel from '../../models/plan';
 import { findAllPlans } from '../../dal/plan';
+import ActionModel from '../../models/actioncount';
 import UserPlanModel from '../../models/user.plan';
 import { saveUserPlans,findUserPlans } from '../../dal/user.plan';
+import { saveAction,findAction } from '../../dal/action';
 import { service_return } from '../../interface/service_response'
 
 const spec = joi.object({
@@ -23,12 +25,16 @@ export async function chooseUserPlan(data: any) {
         }, PlanModel, 'one');
 
         if (!findPlans) throw new Error('Plan does not exist');
-
+        await saveAction({
+            accountid: params.account_id,
+            month:new Date()
+        },ActionModel)
     
         const plan_choosed = await saveUserPlans({
             plan_id: params.plan_id,
             user_id: params.account_id
         }, UserPlanModel)
+        
         
         const res : service_return = {
             message: "plan choosed",

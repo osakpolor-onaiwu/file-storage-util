@@ -50,7 +50,7 @@ const jimp = async (file: string, file_name: string) => {
         )
 
         if (!queue_item.length) throw new Error('no queue item found');
-        //for each item upload then
+        
         for (const item of queue_item) {
             await updateQueueItem({ _id: item._id }, { status: 'pending' }, QueueModel);
             let params: S3upload;
@@ -74,8 +74,8 @@ const jimp = async (file: string, file_name: string) => {
         // return true;
         process.exit(0);
     } catch (error: any) {
-        console.log('upload worker error---', error);
-        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
+        console.log('upload img error---', error);
+        if(error.message !== 'no queue item found') Logger.error([error, error.stack, new Date().toJSON()], 'error converting data');
         process.exit(0);
     }
 

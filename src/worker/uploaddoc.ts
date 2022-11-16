@@ -1,8 +1,3 @@
-import { validateSchema } from '../utils/validatespec';
-import throwcustomError from '../utils/customerror'
-import joi from 'joi';
-import path from 'path';
-import axios from "axios";
 import s3 from '../utils/s3';
 import Logger from '../utils/Logger'
 import DownloadModel from '../models/download';
@@ -11,7 +6,6 @@ import { findDownload, updateDownload } from '../dal/download';
 import { findQueueItem, updateQueueItem } from './dal';
 import { S3upload } from './interface';
 import { initiateMongodb } from '../config/mongo';
-import { parentPort } from 'worker_threads';
 
 (async () => {
     await initiateMongodb()
@@ -55,8 +49,8 @@ import { parentPort } from 'worker_threads';
         // return true;
         process.exit(0);
     } catch (error: any) {
-        console.log('upload worker error---', error);
-        Logger.error([error, error.stack, new Date().toJSON()], 'error uploading data');
+        console.log('upload doc error---', error);
+        if(error.message !== 'no queue item found') Logger.error([error, error.stack, new Date().toJSON()], 'error converting data');
         process.exit(0);
     }
 

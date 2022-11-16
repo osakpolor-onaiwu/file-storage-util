@@ -3,7 +3,7 @@ import 'winston-mongodb';
 import dbConfig from '../config/mongo';
 let logger:any
 
-if(process.env.ENVIRONMENT == 'local') {
+if(process.env.ENVIRONMENT !== 'local') {
   logger = createLogger({
     transports:[
         new transports.Console({
