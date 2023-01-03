@@ -20,18 +20,16 @@ export interface JWTOptions {
  * @param options: JWTOptions
  * @returns generateTokenRType
  */
-export function generateToken(payload: any, options: JWTOptions): generateTokenRType {
+export function generateToken(payload: any, options?: JWTOptions): generateTokenRType {
   const sign_options: SignOptions = {
     issuer: process.env.BASE_URL,
-    audience: options.audience || '',
-    subject: options.subject || '',
     algorithm: 'HS256',
+    expiresIn:process.env.TOKEN_EXPIRY || '1d'//note expiresIn is in seconds if you want one day it is 24*60*60,
   };
-
-  if (!options.is_app && options.expiresIn) sign_options.expiresIn = options.expiresIn;
-
+  
   sign_options.jwtid = uuidv4();
 
+  //the jwt sign takes the payload a token secret which should be a string, make it very long and random, and an option
   const token = jwt.sign(payload, process.env.TOKEN_SECRET, sign_options);
 
   return {
@@ -45,8 +43,17 @@ export function generateToken(payload: any, options: JWTOptions): generateTokenR
  * @param token
  * @returns string | JwtPayload
  */
+// this verifies the token provided in the Authorization headers
 export function verify(token: string) {
-  return jwt.verify(token, process.env.TOKEN_SECRET, { algorithms: ['HS256'], issuer: process.env.BASE_URL });
+  return jwt.verify(token, process.env.TOKEN_SECRET, { algorithms: ['HS256'], issuer: process.env.BASE_URL },(err,decoded)=>{
+    if(err){
+      console.log('verify err---',err.message); 
+      if(err.message.includes('Invalid')) err.message = "Invalid Token Passed";
+      if(err.message.includes('expired')) err.message = "Token has expired"
+      throw new Error(err.message)
+    } 
+    else{ console.log('decoded',decoded); return decoded} 
+  });
 }
 
 /**

@@ -13,8 +13,9 @@ app.use(useragent.express());
 app.use(logger(isDevEnvironment ? 'dev' : 'short'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-const path = require('path');
-const Bree = require('bree');
+import path from 'path';
+import Bree from 'bree';
+
 app.use(cors(),function (req:any, res:any, next:any) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Content-Type","Accept", "Authorization", "Origin, X-Requested-With");
@@ -54,16 +55,14 @@ app.use(function(req:any, res:any, next:any) {
 // error handler
 app.use(function(err:any, req:any, res:any, next:any) {
   console.log('*****',err);
-  const mliteUniqueKey = "File-Storage-util" + String(Date.now() * Math.random()).split(".")[0];
   Logger.error({
     stack: err && err.stack,
     message: (err && err.message) || err,
     timestamp: Date.now()
-  }, mliteUniqueKey);
+  });
   
   err = (err && err.customError) ? err : createError((err && err.status)|| 500); // Added this part so we only send intentionally thrown errors to user
   const data = {
-    key: mliteUniqueKey,
     err: isDevEnvironment ? err : err.message
   }
   const result = {

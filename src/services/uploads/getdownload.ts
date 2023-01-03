@@ -5,7 +5,7 @@ import DownloadModel, { Download }from '../../models/download';
 import { findDownload,  countDocument} from '../../dal/download';
 import Logger from '../../utils/Logger';
 import { service_return } from '../../interface/service_response'
-
+const cloudfront_url = process.env.CLOUTFRONT_URL
 const spec = joi.object({
     account_id: joi.string().trim().required(),
     id: joi.string()
@@ -23,9 +23,11 @@ export async function getdownload(data: any) {
         )
         if (!item) throw new Error('Download not found');
         const is_successfull = item.url !== null? 'Successful' : 'Failed';
+        const url = `${cloudfront_url}/${item.key}`
+        //call s3, u need signing of the item
         const res : service_return = {
             message: `Download ${is_successfull}`,
-            data: item.url,
+            data: url,
         }
         return res
     } catch (error: any) {

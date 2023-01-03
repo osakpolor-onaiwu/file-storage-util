@@ -61,7 +61,7 @@ export async function convert(data: any) {
         if (params.from === params.to) {
             throw new Error('from and to cannot be the same.');
         }
-        if(params.from === 'html' && (params.to !== 'pdf'&& params.to !== 'jpeg')) throw new Error('html can only be converted to pdf');
+        if(params.from === 'html' && (params.to !== 'pdf'&& params.to !== 'jpeg')) throw new Error('html can only be converted to pdf or image(jpeg)');
         if(params.from === 'text' && params.to !== 'pdf') throw new Error('text can only be converted to pdf');
         if(params.from === 'html' && (!params.url && !params.file)) throw new Error('please pass a url or file');
         if(params.to === 'jpeg' && params.from !== 'html') throw new Error('only html document can be converted to image')
@@ -183,6 +183,7 @@ export async function convert(data: any) {
 
     } catch (error: any) {
         Logger.error([error, error.stack, new Date().toJSON()], 'DOC-CONVERSION-ERROR');
+        if(error.message.includes('duplicate')) error.message = 'you already have a file with this name'
         throwcustomError(error.message);
     }
 }

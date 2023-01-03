@@ -37,7 +37,7 @@ const DownloadSchema: Schema<Download> = new Schema(
   { timestamps: true },
 );
 
-DownloadSchema.index({ account_id: 1, key:1 }, { unique: true })
+DownloadSchema.index({ account_id: 1, file:1 }, { unique: true })
 const DownloadModel = mongoose.model('Download', DownloadSchema, 'download');
 
 export default DownloadModel;

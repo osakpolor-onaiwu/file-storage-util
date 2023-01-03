@@ -1,7 +1,6 @@
 import { LoginInfo } from "../../types/user";
 import { find as findUser, findToken, blacklistTokens, saveLoginAttempt } from "../../dal/user";
 import { generateToken } from "../../utils/jwt";
-import { USER_ACCESS_TOKEN_EXPIRY } from "../../utils/misc";
 import { User } from "../../models/user";
 import { createRefreshToken } from "./authenticate";
 import throwcustomError from '../../utils/customerror'
@@ -29,7 +28,7 @@ export async function generateNewToken(data: {user_id: string, r_token: string, 
     
         const user_payload = { user_id: user._id, email: (user as User).email || '', username: (user as User).username || '' };
     
-        const token_object = generateToken(user_payload, { is_app: false, expiresIn: USER_ACCESS_TOKEN_EXPIRY });
+        const token_object = generateToken(user_payload);
     
         const new_refresh_token = await createRefreshToken(user._id, token_object.token);
     

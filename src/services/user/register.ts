@@ -9,9 +9,9 @@ import { notifier } from '../../email/notifier';
 const spec = joi.object({
   username:joi.string().required(),
   email:joi.string().email().required(),
-  role:joi.string().default('owner'),
+  role: joi.string().valid('owner','admin','guest').default('owner'),
   password:joi.string().regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/i).error(new Error(
-   'password must be more than 8 character long. it must be alphanumeric and contain special characters')).required()
+   'password must be more than 7 character long. it must be alphanumeric and contain special characters')).required()
 })
 
 export async function registerUser(data: User) {
